@@ -20,6 +20,17 @@ public class AccountingController {
         return ApiResponse.ok(service.get(period));
     }
 
+    /**
+     * 核算期状态清单（轻量）：不含明细、不含能源量，只用于列表页刷新"状态/版本"。
+     * <p>
+     * 前端进入核算列表时调用一次，解决"登录时的 bootstrap 快照过期导致列表仍显示草稿"的问题（BUG-002）；
+     * 只读接口，不产生任何写操作。
+     */
+    @GetMapping
+    public ApiResponse list() {
+        return ApiResponse.ok(service.statusList());
+    }
+
     @GetMapping("/{period}/lines")
     public ApiResponse lines(@PathVariable String period) {
         return ApiResponse.ok(service.get(period).lines());

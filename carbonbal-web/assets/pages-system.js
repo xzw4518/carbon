@@ -3,12 +3,7 @@
   'use strict';
   const { $, esc, icon, toast, modal, confirm, busy, route } = UI;
 
-  const ROLES = [
-    ['admin', '租户管理员'], ['filler', '填报员'], ['reviewer', '复核人'],
-    ['approver', '批准人'], ['viewer', '查看者']
-  ];
   const STATUS = [['active', '正常'], ['disabled', '停用'], ['pending', '待激活']];
-  const roleLabel = (r) => (ROLES.find(x => x[0] === r) || [, r])[1];
   const statusTag = (s) => s === 'active'
     ? '<span class="tag tag-ok dot">正常</span>'
     : s === 'disabled'
@@ -205,20 +200,40 @@
     }).catch(e => toast('err', e.message));
   }
 
+  /** 模板兜底：后端接口未部署时在前端生成同一份 CSV，保证导入可用。 */
+  const TEMPLATE_CSV = '\uFEFF手机号,姓名,角色,工号,职位\r\n'
+    + '13900000001,张三,运营,EMP001,能源管理员\r\n'
+    + '13900000002,李四,运营,EMP002,碳核算专员\r\n';
+  function downloadTemplateLocal() {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([TEMPLATE_CSV], { type: 'text/csv;charset=utf-8' }));
+    a.download = '成员导入模板.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
   function importModal() {
     modal({
       title: '批量导入成员', width: 560,
       body: `<div class="stack">
-        <div class="small muted">CSV 表头：手机号,姓名,角色（admin/filler/reviewer/approver/viewer），可选工号,职位</div>
+        <div class="small muted">CSV 列顺序：手机号,姓名,角色,工号,职位（工号、职位可空）；角色填「运营」或「租户管理员」。</div>
+        <div class="toolbar"><button class="btn" id="iu-tpl">${icon('download', 15)} 下载导入模板</button></div>
         <label class="btn" style="justify-content:center;height:auto;padding:10px;cursor:pointer">
           ${icon('upload', 16)} <span id="iu-name">选择 CSV 文件</span>
           <input type="file" id="iu-file" accept=".csv" style="display:none"></label>
-        <div class="small muted">整批共用一个临时密码；失败行会返回原因，不影响其他行。</div>
+        <div class="small muted">模板含示例行，导入前请替换为真实数据。整批共用一个临时密码；失败行会返回原因，不影响其他行。</div>
         <div id="iu-result"></div></div>`,
       foot: `<button class="btn" data-close>取消</button><button class="btn btn-primary" id="iu-run">开始导入</button>`,
       onMount(wrap, close) {
         const f = wrap.querySelector('#iu-file');
         f.onchange = () => { wrap.querySelector('#iu-name').textContent = f.files[0] ? f.files[0].name : '选择 CSV 文件'; };
+        wrap.querySelector('#iu-tpl').onclick = async (e) => {
+          const done = busy(e.currentTarget, '下载中');
+          let ok = false;
+          try { ok = await CarbonAPI.download('/users/import-template', true); } catch (err) { ok = false; }
+          done();
+          if (!ok) downloadTemplateLocal();
+        };
         wrap.querySelector('#iu-run').onclick = async (e) => {
           if (!f.files[0]) { toast('err', '请选择 CSV 文件'); return; }
           const done = busy(e.currentTarget, '导入中');

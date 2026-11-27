@@ -192,8 +192,8 @@
   const canApprove = () => roleOf() === 'admin' || roleOf() === 'user' || roleOf() === 'approver';
 
   function roleLabel(role) {
-    return ({ admin: '租户管理员', filler: '填报员', reviewer: '复核人', approver: '批准人',
-      viewer: '查看者', platform_admin: '超级管理员' })[role] || role;
+    return ({ admin: '租户管理员', user: '运营', tenant_admin: '租户管理员',
+      platform_admin: '超级管理员' })[role] || role;
   }
 
   const emptyDb = () => ({
@@ -680,11 +680,11 @@
     return r.id;
   }
 
-  async function download(path) {
+  async function download(path, silent) {
     const res = await fetch(BASE + path, { credentials: 'same-origin' });
     if (!res.ok) {
-      toast('err', '下载失败 ' + res.status);
-      return;
+      if (!silent) toast('err', '下载失败 ' + res.status);
+      return false;
     }
     const blob = await res.blob();
     const cd = res.headers.get('Content-Disposition') || '';
@@ -695,6 +695,7 @@
     a.download = name;
     a.click();
     URL.revokeObjectURL(a.href);
+    return true;
   }
 
   /* ---------- 写操作映射 ---------- */

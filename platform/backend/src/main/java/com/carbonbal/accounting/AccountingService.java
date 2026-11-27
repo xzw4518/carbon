@@ -58,6 +58,27 @@ public class AccountingService {
         return view(p);
     }
 
+    /**
+     * 当前企业最近 24 个核算期的状态清单（轻量）。
+     * <p>
+     * 供前端列表页做一次"只更新状态/版本"的刷新使用：不含核算明细与能源量，
+     * 单次查询、无写操作，因此不会被"期间状态未变"这类幂等断言误伤。
+     *
+     * @return 按核算期倒序的轻量状态列表
+     */
+    public List<AccountingDtos.PeriodStatus> statusList() {
+        return periods.selectList(Wrappers.<AccountingPeriod>lambdaQuery()
+                        .eq(AccountingPeriod::getOrgId, CurrentUser.orgId())
+                        .orderByDesc(AccountingPeriod::getPeriod)
+                        .last("LIMIT 24"))
+                .stream()
+                .map(p -> new AccountingDtos.PeriodStatus(
+                        p.getPeriod(),
+                        p.getStatus() == null || p.getStatus().isBlank() ? "draft" : p.getStatus(),
+                        p.getVersion(), p.getCalcVersion()))
+                .toList();
+    }
+
     @Transactional
     public AccountingDtos.PeriodView calculate(String period) {
         if (period == null || !PERIOD_PATTERN.matcher(period).matches()) {

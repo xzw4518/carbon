@@ -571,7 +571,27 @@
     const h = (location.hash || '#/home').replace(/^#/, '');
     const path = h.split('?')[0] || '/home';
     const registered = !!routes[path];
-    const cfg = routes[path] || routes['/home'];
+    const cfg = routes[path];
+    // 未知路由：渲染 404 页，而不是静默回退首页（BUG-003）。
+    // 历史行为会把非法 hash 渲染成首页内容，用户以为链接正常，排障困难。
+    // 这里保留 hash 不改写（便于定位错误链接），且不把非法路径写进 openTabs。
+    // window.__pagesReady 由 index.html 在全部页面模块加载完成后置 true，
+    // 加载竞态期间（路由尚未注册完）仍按旧逻辑直接返回，避免把合法路由误判成 404。
+    if (!cfg && window.__pagesReady) {
+      state.route = path;
+      $$('.nav a').forEach(a => a.classList.remove('active'));
+      $('#crumb-title').textContent = '页面不存在';
+      $('#crumb-group').textContent = '';
+      document.title = '404 · 能碳管理平台';
+      if (window.innerWidth <= 900) $('#side').classList.remove('open');
+      $('#view').innerHTML = `<div class="page"><section class="card"><div class="card-body">
+        <div class="tb-empty">${icon('lock')}<div>页面不存在（404）</div>
+        <div class="small">链接可能已失效，请从左侧菜单重新进入</div>
+        <button class="btn btn-primary" style="margin-top:12px" onclick="location.hash='#/home'">返回首页</button>
+        </div></div></section></div>`;
+      window.scrollTo(0, 0);
+      return;
+    }
     if (!cfg) return; // 页面模块尚未加载完成（例如登录后立即跳转）
     state.route = path;
 

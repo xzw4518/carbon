@@ -116,7 +116,9 @@ class TokenClaimTest extends ApiTestSupport {
     @Test
     void tokenWithoutIdentityClaimsIsRejected() throws Exception {
         SeedUser admin = seedUser("13800000001");
+        // 这里带上 jti，确保被拒的原因就是"缺 uid/org"，而不是"缺 jti"（两者都是 401 SESSION_REVOKED）
         String noUid = Jwts.builder()
+                .id("test-no-uid-" + admin.userId())
                 .subject("13800000001")
                 .claim("role", "admin")
                 .claim("org", admin.orgId())
@@ -130,6 +132,7 @@ class TokenClaimTest extends ApiTestSupport {
         assertThat(r.code()).isEqualTo("SESSION_REVOKED");
 
         String noOrg = Jwts.builder()
+                .id("test-no-org-" + admin.userId())
                 .subject("13800000001")
                 .claim("uid", admin.userId())
                 .claim("role", "admin")
@@ -139,6 +142,27 @@ class TokenClaimTest extends ApiTestSupport {
                 .expiration(Date.from(Instant.now().plusSeconds(3600)))
                 .signWith(KEY).compact();
         assertThat(call(get("/api/products"), noOrg, null).http()).isEqualTo(401);
+    }
+
+    /* ==================== 3.1 缺 jti → 401（会话无法吊销的令牌一律拒绝） ==================== */
+
+    @Test
+    void tokenWithoutJtiIsRejected() throws Exception {
+        SeedUser admin = seedUser("13800000001");
+        // 除 jti 外全部合法：模拟"升级前签发的老令牌"或"拿到泄露密钥的伪造者"
+        String noJti = Jwts.builder()
+                .subject("13800000001")
+                .claim("uid", admin.userId())
+                .claim("role", "admin")
+                .claim("org", admin.orgId())
+                .claim("tv", admin.tokenVersion())
+                .claim("pages", "*")
+                .issuedAt(Date.from(Instant.now()))
+                .expiration(Date.from(Instant.now().plusSeconds(3600)))
+                .signWith(KEY).compact();
+        Resp r = call(get("/api/products"), noJti, null);
+        assertThat(r.http()).as("缺 jti 的令牌无法被登出吊销，必须拒绝").isEqualTo(401);
+        assertThat(r.code()).isEqualTo("SESSION_REVOKED");
     }
 
     @Test
@@ -152,6 +176,7 @@ class TokenClaimTest extends ApiTestSupport {
         // 反向：平台账号代管可以进入租户业务接口
         SeedUser platform = seedUser("13900000000");
         String imp = Jwts.builder()
+                .id("test-imp-" + platform.userId())
                 .subject("13900000000")
                 .claim("uid", platform.userId())
                 .claim("phone", "13900000000")
@@ -199,6 +224,7 @@ class TokenClaimTest extends ApiTestSupport {
      */
     private String sign(SeedUser user, String pages, boolean impersonation) {
         var b = Jwts.builder()
+                .id("test-" + user.userId() + "-" + System.nanoTime())
                 .subject("user-" + user.userId())
                 .claim("uid", user.userId())
                 .claim("role", "admin")

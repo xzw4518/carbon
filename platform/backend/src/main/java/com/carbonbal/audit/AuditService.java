@@ -38,15 +38,28 @@ public class AuditService {
      * @param orgId 归属租户；传空时取当前上下文。平台操作显式传 {@link #PLATFORM_ORG_ID}。
      */
     public void record(String entity, Object entityId, String action, Object before, Object after, Long orgId) {
+        record(entity, entityId, action, before, after, orgId, CurrentUser.actor(), CurrentUser.userIdOrNull());
+    }
+
+    /**
+     * 显式指定操作人：用于匿名接口里也要留痕的场景（例如登出——请求已不带认证上下文，
+     * 若沿用 {@link CurrentUser#actor()} 会记成 {@code anonymousUser}，失去追溯价值）。
+     *
+     * @param orgId   归属租户，空表示取当前上下文
+     * @param actor   操作人标识（通常为手机号）
+     * @param actorId 操作人账号 id，可为 null
+     */
+    public void record(String entity, Object entityId, String action, Object before, Object after,
+                       Long orgId, String actor, Long actorId) {
         AuditLog l = new AuditLog();
         l.setOrgId(orgId == null ? CurrentUser.orgId() : orgId);
-        l.setActorId(CurrentUser.userIdOrNull());
+        l.setActorId(actorId);
         l.setEntity(entity);
         l.setEntityId(String.valueOf(entityId));
         l.setAction(action);
         l.setBeforeJson(toJson(before));
         l.setAfterJson(toJson(after));
-        l.setActor(CurrentUser.actor());
+        l.setActor(actor);
         l.setActionLabel(actionLabel(action));
         l.setLoggedAt(LocalDateTime.now());
         mapper.insert(l);

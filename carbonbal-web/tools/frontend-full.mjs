@@ -1079,15 +1079,24 @@ async function snapshot(token) {
   });
 
   /* ==================== H. 异常与路由健壮性（管理员） ==================== */
-  await step('H01', '异常与边界', 'P2', '未知路由回退首页', '未知 hash 渲染首页', async () => {
-    await nav(page, '#/not-exist-' + stamp, 900);
+  await step('H01', '异常与边界', 'P2', '未知路由渲染 404', '未知 hash 渲染 404 页且不改写 hash', async () => {
+    // BUG-003 修复后：未知路由不再静默回退首页，而是渲染 404 页（保留 hash 便于定位错误链接）
+    const unknown = '#/not-exist-' + stamp;
+    const tabsBefore = await page.evaluate(() => document.querySelectorAll('.tag-item').length);
+    await nav(page, unknown, 900);
     const v = await page.evaluate(() => ({
       crumb: document.querySelector('#crumb-title').textContent.trim(),
-      page: !!document.querySelector('#view .page')
+      page: !!document.querySelector('#view .page'),
+      text: document.querySelector('#view').textContent.replace(/\s+/g, ' '),
+      hash: location.hash,
+      tabs: document.querySelectorAll('.tag-item').length
     }));
     assert(v.page, '未渲染');
-    assert(v.crumb === '首页', '标题=' + v.crumb);
-    return '回退首页';
+    assert(v.crumb === '页面不存在', '标题=' + v.crumb);
+    assert(v.text.indexOf('页面不存在（404）') >= 0, '缺少 404 文案');
+    assert(v.hash === unknown, 'hash 被改写为 ' + v.hash);
+    assert(v.tabs === tabsBefore, '非法路由不得新增页签，' + tabsBefore + '→' + v.tabs);
+    return '渲染 404（' + v.crumb + '）';
   });
 
   await step('H02', '异常与边界', 'P2', '带查询参数的路由', '#/home?x=1 仍渲染首页', async () => {
@@ -1208,10 +1217,14 @@ async function snapshot(token) {
     return keys.map(k => `${k}=${after[k]}`).join(', ');
   });
 
-  await step('I03', '数据一致性', 'P0', '核算期状态未变', '2026-11 仍为 draft', async () => {
+  await step('I03', '数据一致性', 'P0', '核算期状态未变', '2026-11 前后状态一致且未被本套件改动', async () => {
+    // 不假设演示库初始状态为 draft：e2e.sh 结束时会把 2026-11 停在 calculated，
+    // 紧跟 e2e 执行本套件时会误报（BUG-004）。上一行 already 断言 before == after，
+    // 足以证明"本套件没有改动期间状态"；这里只保留白名单，防止误报掩盖真实回归。
     assert(after.period === before.period, before.period + '→' + after.period);
-    assert(after.period === 'draft', '当前状态=' + after.period);
-    return 'draft';
+    assert(['draft', 'calculated', 'submitted', 'reviewed', 'approved', 'locked'].includes(after.period),
+      '当前状态=' + after.period);
+    return after.period;
   });
 
   await step('I04', '数据一致性', 'P0', '服务健康检查', '/api/health 返回 UP', async () => {

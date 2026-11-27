@@ -237,6 +237,7 @@
 | `POST /api/users/{id}/handover` | 把创建人/负责人转给他人 | 目标必须是本租户启用用户 |
 | `DELETE /api/users/{id}` | 移出成员；账号保留 | 最后管理员 `MEMBER_LAST_ADMIN` |
 | `GET /api/users/{id}/login-logs?limit=50` | 该成员登录记录 | — |
+| `GET /api/users/import-template` | 下载成员导入模板（`手机号,姓名,角色,工号,职位`，含示例行） | — |
 | `GET /api/users/export` / `POST /api/users/import` | CSV 导入导出 | `VALIDATION` |
 
 ## 6. 角色管理（租户管理员 / 超级管理员）

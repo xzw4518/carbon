@@ -306,13 +306,13 @@ app_user（账号：手机号全局唯一，可无密码）
 
 ### 14.2 角色与职责分离
 
-| 角色 | 能力 |
+| 成员类型 / 角色 | 能力 |
 |---|---|
-| `admin` | 成员管理、企业信息、全部业务读写、复核/批准/锁定 |
-| `filler` | 业务填报、发起核算、提交 |
-| `reviewer` | 复核（不能复核自己编制的期间） |
-| `approver` | 批准（不能批准自己复核的期间）、锁定 |
-| `viewer` | 演示查看者（页面集合可配，接口不区分读写） |
+| 租户管理员（`user_type=tenant_admin`） | 成员管理、企业信息、全部业务读写、复核/批准/锁定 |
+| 普通用户（`user_type=user`，角色如内置「运营」） | 角色勾选的业务页面；可填报、发起核算、提交，并可执行复核/批准动作 |
+| 外部协作者 | 仅「我的授权」范围内的报告/数据 |
+
+演示账号的 4 个普通用户（张三、李四、王五、赵六）角色一致，均为「运营」，不预设填报/复核/批准岗位。
 
 核算状态机：`draft → calculated → submitted → reviewed → approved → locked`（`unlock` 回 draft 并写 `period_unlock`）。五列表与账号/成员/租户状态机见 `docs/state-machines.md`。
 职责分离在服务层强制：编制人 ≠ 复核人、复核人 ≠ 批准人，违规返回 409。
@@ -362,7 +362,7 @@ bcrypt cost 10（`password_algo` 字段支持后续升级）。管理员重置�
 | GET/POST | `/api/users` | admin |
 | PUT/DELETE | `/api/users/{membershipId}` | admin |
 | POST | `/api/users/{id}/disable`、`/enable`、`/reset-password`、`/unlock`、`/handover` | admin |
-| POST | `/api/users/import`、GET `/api/users/export` | admin |
+| POST | `/api/users/import`、GET `/api/users/import-template`、GET `/api/users/export` | admin |
 | GET | `/api/users/{id}/login-logs` | admin |
 | POST | `/api/accounting-periods/{period}/review` | admin / reviewer |
 | POST | `/api/accounting-periods/{period}/approve` | admin / approver |
@@ -440,4 +440,4 @@ bcrypt cost 10（`password_algo` 字段支持后续升级）。管理员重置�
 
 ### 15.7 当前口径
 
-**39 张业务表、183 个 API、128 条断言、102 项端到端、33 项数据门禁、14 项性能预算**。
+**39 张业务表、183 个 API、135 条断言、102 项端到端、33 项数据门禁、14 项性能预算**。

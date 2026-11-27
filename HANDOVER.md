@@ -1,6 +1,6 @@
 # 能碳管理平台（源码交付包）
 
-> 版本 1.0.1　打包日期见 `MANIFEST.txt`　Flyway 115（33 个迁移）　技术栈 JDK 17 + Spring Boot 3.2 + MySQL 8
+> 版本 1.0.1　打包日期见 `MANIFEST.txt`　Flyway 116（34 个迁移）　技术栈 JDK 17 + Spring Boot 3.2 + MySQL 8
 > 本包为**完整源码**：后端、前端、数据库迁移、测试与验收脚本、部署配置、项目文档。不含编译产物、运行数据与备份。
 
 ## 1. 包内结构
@@ -25,9 +25,9 @@ carbonbal-1.0.1/
    │  ├─ src/main/java/         业务代码（认证/租户/核算/报告/预警…）
    │  ├─ src/main/resources/
    │  │  ├─ application.yml     dev（H2）与 prod（MySQL）两套配置
-   │  │  ├─ db/migration/       Flyway V1–V115
+   │  │  ├─ db/migration/       Flyway V1–V116
    │  │  └─ static/             app（前端产物，可重新生成）、console.html（运维台）
-   │  ├─ src/test/java/         128 条断言（H2，32 个测试类）
+   │  ├─ src/test/java/         135 条断言（H2，33 个测试类）
    │  └─ tools/                 e2e/smoke/数据门禁/性能/巡检/备份/恢复/打包脚本
    ├─ deploy/                   Dockerfile、compose、nginx、自签证书、密钥生成
    └─ docs/                     架构、权限、状态机、错误码、发布回滚、复盘、模板库
@@ -58,12 +58,14 @@ java -jar target/carbonbal.jar
 
 | 手机号 | 密码 | 角色 |
 |---|---|---|
-| 13800000001 | Admin@2026!Pass | 管理员 |
-| 13800000002 | Test@2026!Pass | 填报员 |
-| 13800000003 | Test@2026!Pass | 查看者 |
-| 13800000004 | Test@2026!Pass | 复核人 |
-| 13800000005 | Test@2026!Pass | 批准人 |
+| 13800000001 | Admin@2026!Pass | 租户管理员 |
+| 13800000002 | Test@2026!Pass | 运营 · 张三 |
+| 13800000003 | Test@2026!Pass | 运营 · 李四 |
+| 13800000004 | Test@2026!Pass | 运营 · 王五 |
+| 13800000005 | Test@2026!Pass | 运营 · 赵六 |
 | 13900000000 | Superadmin@2026!Pass | 平台运营（租户开通） |
+
+四个普通用户角色相同，不预设填报/复核/批准岗位。
 
 ## 4. 生产运行（MySQL）
 
@@ -83,7 +85,7 @@ export DB_PASSWORD='<强密码>'
 bash platform/deploy/gen-secret.sh platform/.env.production
 set -a; . platform/.env.production; set +a
 
-# 3) 构建并启动（Flyway 自动执行 33 个迁移并建种子）
+# 3) 构建并启动（Flyway 自动执行 34 个迁移并建种子）
 cd platform/backend
 mvn clean package -DskipTests
 java -jar target/carbonbal.jar --spring.profiles.active=prod
@@ -112,7 +114,7 @@ bash platform/tools/sync-frontend.sh --check   # 检查漂移（交付前必须�
 
 | 命令 | 期望 | 说明 |
 |---|---|---|
-| `mvn test` | 128/128 | H2 内存库，每次独立 |
+| `mvn test` | 135/135 | H2 内存库，每次独立 |
 | `bash tools/smoke.sh` | 9/9 | 需服务已启动 |
 | `bash tools/e2e.sh` | 100/102 | 需服务；2 项短信用例依赖通道配额，本次可标环境豁免 |
 | `bash tools/data-check.sh` | 29/29 | 直连库；需 `MYSQL_BIN` 或 mysql 客户端 |

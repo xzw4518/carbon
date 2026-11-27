@@ -103,6 +103,17 @@ public class UserController {
         return ApiResponse.ok(service.importCsv(file));
     }
 
+    @GetMapping("/import-template")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ByteArrayResource> importTemplate() {
+        byte[] bytes = service.importTemplateCsv();
+        String name = URLEncoder.encode("成员导入模板.csv", StandardCharsets.UTF_8).replace("+", "%20");
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + name)
+                .contentType(MediaType.parseMediaType("text/csv;charset=UTF-8"))
+                .body(new ByteArrayResource(bytes));
+    }
+
     @GetMapping("/export")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ByteArrayResource> export() {

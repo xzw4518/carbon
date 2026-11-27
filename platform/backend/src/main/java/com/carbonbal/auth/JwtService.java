@@ -12,6 +12,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * JWT 签发与验签。
@@ -73,6 +74,9 @@ public class JwtService {
         Instant now = Instant.now();
         String subject = u.getPhone() != null && !u.getPhone().isBlank() ? u.getPhone() : u.getUsername();
         var b = Jwts.builder()
+                // jti（会话唯一标识）：登出按会话吊销，只失效本次登录，不影响同账号其他设备。
+                // 没有 jti 的令牌无法被吊销，因此 JwtAuthFilter 对缺 jti 的令牌直接拒绝（默认拒绝）。
+                .id(UUID.randomUUID().toString())
                 .subject(subject)
                 .claim("uid", u.getId())
                 .claim("phone", subject)

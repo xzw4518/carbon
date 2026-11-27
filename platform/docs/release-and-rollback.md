@@ -11,14 +11,14 @@
 | jar SHA256（前 32 位） | `f90865e2aa04c661d1b20cf41491234b` |
 | jar 大小 | 38,903,818 字节 |
 | 前端源码指纹（index + assets） | `cb006820d678e5957119d636597c4ede` |
-| Flyway 版本 | 115（33 个迁移） |
+| Flyway 版本 | 116（34 个迁移） |
 | 数据库 | MySQL 8.0.28 @ 127.0.0.1:3307 / `carbonbal` |
 
 ## 2. 发布前门禁（全部可执行）
 
 | 层 | 命令 | 通过标准 |
 |---|---|---|
-| 单元/接口 | `mvn test` | 128/128，0 failure |
+| 单元/接口 | `mvn test` | 135/135，0 failure |
 | L0 静态 | `node tools/gate-l0.cjs` | 11/11 |
 | L2 UI | `node tools/check-ui.cjs` | 5/5（35 路由、0 控制台错误） |
 | 冒烟 | `bash tools/smoke.sh` | 9/9 |
@@ -109,5 +109,5 @@ bash tools/package-source.sh          # 生成 dist/carbonbal-<版本>.zip / .ta
 1. 打包前自动执行 `sync-frontend.sh --check`，源码与产物不一致直接失败。
 2. 包内排除 `target`、`node_modules`、`backup`、`data`、`logs`、`*.log`，只留源码/迁移/脚本/文档。
 3. 包根 `README.md` 为交接说明，`MANIFEST.txt` 记录版本/日期/文件数，`SHA256SUMS` 逐文件校验。
-4. 验收：解压到空目录 → `sha256sum -c SHA256SUMS` → `mvn test` 128/128 → 启动登录。
+4. 验收：解压到空目录 → `sha256sum -c SHA256SUMS` → `mvn test` 135/135 → 启动登录。
 5. 交付时同时给出 zip/tar.gz 两个归档的 SHA256，接收方先校验再解压。

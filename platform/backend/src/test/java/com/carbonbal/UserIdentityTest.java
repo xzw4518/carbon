@@ -2,8 +2,10 @@ package com.carbonbal;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -107,6 +109,30 @@ class UserIdentityTest extends ApiTestSupport {
         // 普通管理员无权访问平台端
         String admin = login(ADMIN_PHONE, ADMIN_PWD);
         assertThat(call(get("/api/platform/tenants"), admin, null).http()).isEqualTo(403);
+    }
+
+    @Test
+    void importTemplateAndChineseRoleImport() throws Exception {
+        String admin = login(ADMIN_PHONE, ADMIN_PWD);
+
+        byte[] tpl = mvc.perform(get("/api/users/import-template").header("Authorization", "Bearer " + admin))
+                .andReturn().getResponse().getContentAsByteArray();
+        String text = new String(tpl, StandardCharsets.UTF_8);
+        assertThat(text).as("模板表头与角色写法")
+                .contains("手机号,姓名,角色,工号,职位").contains("运营");
+
+        String filler = login("13800000002", "Test@2026!Pass");
+        assertThat(status(get("/api/users/import-template"), filler))
+                .as("普通用户不能下载导入模板").isEqualTo(403);
+
+        String phone = "1397002" + String.format("%04d", System.currentTimeMillis() % 10000);
+        MockMultipartFile file = new MockMultipartFile("file", "users.csv", "text/csv",
+                ("手机号,姓名,角色,工号,职位\n" + phone + ",导入测试,运营,EMP9,工程师\n")
+                        .getBytes(StandardCharsets.UTF_8));
+        Resp r = call(multipart("/api/users/import").file(file), admin, null);
+        assertThat(r.http()).as("导入响应: " + r.body()).isEqualTo(200);
+        assertThat(r.body().path("success").asInt()).isEqualTo(1);
+        assertThat(r.body().path("failed").asInt()).isZero();
     }
 
     @Test

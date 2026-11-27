@@ -21,7 +21,8 @@ import java.util.Set;
 /**
  * 认证过滤器：优先读 HttpOnly Cookie，回退 Authorization: Bearer（脚本与 e2e 使用）。
  * <p>
- * 除解析签名外，还校验账号状态、令牌版本（改密/停用/改角色后失效）、页面集合、成员关系与租户状态。
+ * 除解析签名外，还校验账号状态、令牌版本（改密/停用/改角色后失效）、<b>会话吊销（jti）</b>、
+ * 页面集合、成员关系与租户状态。
  * <p>
  * 安全基线是 <b>默认拒绝</b>：令牌里缺少 {@code pages} 声明视为"没有任何页面"（业务接口 403），
  * 缺少 {@code uid/org} 声明视为会话已失效（401 重新登录），不存在任何"缺失即放行"的分支（P1-2）。
@@ -37,10 +38,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwt;
     private final AuthStateService state;
+    private final TokenRevocationService revocation;
 
-    public JwtAuthFilter(JwtService jwt, AuthStateService state) {
+    public JwtAuthFilter(JwtService jwt, AuthStateService state, TokenRevocationService revocation) {
         this.jwt = jwt;
         this.state = state;
+        this.revocation = revocation;
     }
 
     /**
@@ -90,6 +93,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (uid == null || orgId == null) {
             // 老令牌（无 uid/org 声明）无法校验账号状态与成员关系，直接要求重新登录
             deny(res, 401, "SESSION_REVOKED", "会话已失效，请重新登录");
+            return;
+        }
+
+        // 会话吊销（BUG-001）：jti 是吊销的最小单位。
+        // 缺 jti 的令牌无法被吊销（升级前的旧格式），按"默认拒绝"处理，让其重新登录换取新格式令牌；
+        // 已吊销的会话（用户主动登出）立即 401，不依赖 Cookie 是否被浏览器清掉。
+        String jti = c.getId();
+        if (jti == null || jti.isBlank()) {
+            deny(res, 401, "SESSION_REVOKED", "会话已失效，请重新登录");
+            return;
+        }
+        if (revocation.isRevoked(jti)) {
+            deny(res, 401, "SESSION_REVOKED", "已退出登录，请重新登录");
             return;
         }
 

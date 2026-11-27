@@ -14,14 +14,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 /**
- * 演示账号种子：admin / filler / viewer，手机号 13800000001~3。
+ * 演示账号种子：1 名租户管理员 + 4 名「运营」普通用户，手机号 13800000001~5。
+ * 普通用户角色一致，仅在核算流程中按人承担编制/复核/批准动作（职责分离由服务层校验）。
  * 生产环境通过 app.seed.enabled=false 关闭。
  */
 @Component
 public class DataSeeder implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
+
+    /** 旧版按岗位命名的演示账号显示名，启动时自动对齐为姓名（不覆盖自定义名）。 */
+    private static final Set<String> LEGACY_DISPLAY_NAMES = Set.of("填报员", "查看者", "复核人", "批准人");
 
     private final AppUserMapper users;
     private final UserTenantMapper members;
@@ -44,10 +49,10 @@ public class DataSeeder implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         if (!enabled) return;
         seed("admin", "13800000001", "Admin@2026!Pass", "管理员", "admin");
-        seed("filler", "13800000002", "Test@2026!Pass", "填报员", "filler");
-        seed("reviewer", "13800000004", "Test@2026!Pass", "复核人", "reviewer");
-        seed("approver", "13800000005", "Test@2026!Pass", "批准人", "approver");
-        seed("viewer", "13800000003", "Test@2026!Pass", "查看者", "viewer");
+        seed("filler", "13800000002", "Test@2026!Pass", "张三", "user");
+        seed("viewer", "13800000003", "Test@2026!Pass", "李四", "user");
+        seed("reviewer", "13800000004", "Test@2026!Pass", "王五", "user");
+        seed("approver", "13800000005", "Test@2026!Pass", "赵六", "user");
         seedPlatform("13900000000", "Superadmin@2026!Pass", "平台运营");
     }
 
@@ -106,11 +111,12 @@ public class DataSeeder implements ApplicationRunner {
             users.insert(u);
             log.info("seeded user {} phone={} role={}", username, Hashes.maskPhone(phone), role);
         } else {
-            // 老数据补手机号与状态，保持可登录
+            // 老数据补手机号与状态，保持可登录；旧岗位式显示名对齐为姓名
             var upd = Wrappers.<AppUser>lambdaUpdate().eq(AppUser::getId, u.getId());
             boolean dirty = false;
             if (u.getPhone() == null || u.getPhone().isBlank()) { upd.set(AppUser::getPhone, phone); dirty = true; }
             if (u.getStatus() == null) { upd.set(AppUser::getStatus, "active"); dirty = true; }
+            if (LEGACY_DISPLAY_NAMES.contains(u.getDisplayName())) { upd.set(AppUser::getDisplayName, display); dirty = true; }
             if (u.getPasswordUpdatedAt() == null) { upd.set(AppUser::getPasswordUpdatedAt, LocalDateTime.now()); dirty = true; }
             if (dirty) users.update(null, upd);
         }

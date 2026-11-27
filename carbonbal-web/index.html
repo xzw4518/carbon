@@ -175,7 +175,10 @@ function initApp() {
     .filter(g => (!g.platform || (UI.state && UI.state.platformAdmin)) &&
       (!g.adminOnly || (UI.state && UI.state.role === 'admin')))
     .filter(g => (g.type === 'page' ? canSee(g.page)
-      : (g.children.length ? g.children.some(c => canSee(c.page)) : allPages)));
+      : (g.children.length ? g.children.some(c => canSee(c.page)) : allPages)))
+    // 空分组不渲染（BUG-005）：「在线监测」children 为空，过去会渲染一个可折叠但点不动的
+    // 死标题，用户误以为是入口。dead label 没有信息价值，直接不出现在侧栏。
+    .filter(g => g.type === 'page' || (g.children || []).length > 0);
   nav.innerHTML = visibleMenu.map(g => {
     if (g.type === 'page') {
       return `<div class="nav-group"><a class="nav-root" href="#${g.path}" data-s="${g.name.slice(0,1)}">
@@ -184,10 +187,6 @@ function initApp() {
     }
     const kids = g.children.filter(c => canSee(c.page));
     const items = kids.map(c => `<a href="#${c.path}" data-s="${c.name.slice(0,1)}">${c.name}</a>`).join('');
-    if (!g.children.length) {
-      return `<div class="nav-group"><div class="nav-title" style="cursor:default">${g.name}
-        <span class="caret" style="transform:rotate(-90deg)">▾</span></div></div>`;
-    }
     return `<div class="nav-group">
       <div class="nav-title" data-g="${g.name}" data-s="${g.name.slice(0,1)}">${g.name}<span class="caret">▾</span></div>
       <div class="nav-items">${items}</div></div>`;
@@ -266,6 +265,9 @@ function initApp() {
     await load('assets/pages-platform.js');
     await load('assets/pages-group.js');
     await load('assets/account.js');
+    // 全部页面模块注册完成：framework.render() 据此把"未声明的 hash"判定为 404（BUG-003），
+    // 在此之前不判定，避免加载竞态把合法路由误判成 404。
+    window.__pagesReady = true;
     initApp();
   })().catch(e => {
     console.error(e);

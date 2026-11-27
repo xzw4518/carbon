@@ -21,10 +21,13 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,6 +39,8 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+
     private final AppUserMapper users;
     private final UserTenantMapper members;
     private final PasswordHistoryMapper passwordHistory;
@@ -45,6 +50,7 @@ public class AuthController {
     private final JwtService jwt;
     private final LoginAttemptService loginAttempts;
     private final AuthStateService state;
+    private final TokenRevocationService revocation;
     private final SmsService sms;
     private final CaptchaService captcha;
     private final OrgMapper orgs;
@@ -63,6 +69,7 @@ public class AuthController {
     public AuthController(AppUserMapper users, UserTenantMapper members, PasswordHistoryMapper passwordHistory,
                           PhoneHistoryMapper phoneHistory, PasswordEncoder encoder, PasswordPolicy policy,
                           JwtService jwt, LoginAttemptService loginAttempts, AuthStateService state,
+                          TokenRevocationService revocation,
                           SmsService sms, CaptchaService captcha, OrgMapper orgs, AuditService audit, RoleService roleService,
                           @Value("${app.auth.cookie.enabled:true}") boolean cookieMode,
                           @Value("${app.auth.cookie.secure:false}") boolean cookieSecure,
@@ -79,6 +86,7 @@ public class AuthController {
         this.jwt = jwt;
         this.loginAttempts = loginAttempts;
         this.state = state;
+        this.revocation = revocation;
         this.sms = sms;
         this.captcha = captcha;
         this.orgs = orgs;
@@ -351,8 +359,49 @@ public class AuthController {
         return issuePlatform(u, request, response, "exit-tenant");
     }
 
+    /**
+     * 退出登录：清 Cookie <b>并且</b> 在服务端吊销本次会话（BUG-001）。
+     * <p>
+     * 历史实现只清 Cookie，令牌本身仍然有效——令牌一旦泄露，用户即便主动退出，
+     * 攻击者仍可在剩余有效期内访问全部已授权数据。现在按 jti 落库吊销：
+     * <ul>
+     *   <li>立刻生效：{@code JwtAuthFilter} 下一次请求即 401 {@code SESSION_REVOKED}；</li>
+     *   <li>重启不丢：吊销记录在 {@code revoked_token} 表里，不是内存 Map；</li>
+     *   <li>只下线本设备：同一账号的其他会话（另一 jti）继续有效。</li>
+     * </ul>
+     * 令牌缺失/已失效时登出仍然返回 200（幂等），只是没有可吊销的会话。
+     */
     @PostMapping("/logout")
-    public ApiResponse logout(HttpServletResponse response) {
+    public ApiResponse logout(HttpServletRequest request, HttpServletResponse response) {
+        String token = tokenOf(request);
+        if (token != null) {
+            try {
+                Claims c = jwt.parse(token);
+                String jti = c.getId();
+                if (jti != null && !jti.isBlank()) {
+                    Long uid = asLong(c.get("uid"));
+                    Long orgId = asLong(c.get("org"));
+                    Object rawPhone = c.get("phone");
+                    String phone = rawPhone != null && !String.valueOf(rawPhone).isBlank()
+                            ? String.valueOf(rawPhone) : c.getSubject();
+                    Instant expiresAt = c.getExpiration() == null ? Instant.now() : c.getExpiration().toInstant();
+                    boolean first = revocation.revoke(jti, uid, orgId, phone, "logout", expiresAt);
+                    if (first && uid != null) {
+                        // 会话流水：与登录事件同表，便于"谁在何时退出"的追溯（不影响"最近登录"口径）
+                        state.logLogin(orgId, uid, phone, "logout", "logout",
+                                clientIp(request), request.getHeader("User-Agent"));
+                        audit.record("session", uid, "logout", null,
+                                Map.of("jti", jti, "phone", phone == null ? "" : phone),
+                                orgId == null ? AuditService.PLATFORM_ORG_ID : orgId,
+                                phone == null ? "unknown" : phone, uid);
+                    }
+                    revocation.purgeExpiredIfDue();
+                }
+            } catch (Exception e) {
+                // 令牌被篡改/已过期：登出是幂等动作，照常清 Cookie，不向调用方报错
+                log.debug("登出时令牌无法解析，仅清理 Cookie：{}", e.getMessage());
+            }
+        }
         clearAuthCookies(response);
         return ApiResponse.ok(Map.of("loggedOut", true));
     }
@@ -677,6 +726,33 @@ public class AuthController {
         if (v instanceof Number n) return n.longValue();
         if (v != null) {
             try { return Long.parseLong(v.toString()); } catch (NumberFormatException ignored) { }
+        }
+        return null;
+    }
+
+    /**
+     * 取当前请求携带的令牌：优先 HttpOnly Cookie（浏览器），回退 {@code Authorization: Bearer}（脚本/测试）。
+     * <p>
+     * 登出接口在过滤器里属于匿名接口（不解析令牌），因此这里必须自己取一次，
+     * 才能拿到 jti 做服务端吊销。
+     *
+     * @param req 当前请求
+     * @return 令牌原文；未携带返回 null
+     */
+    private static String tokenOf(HttpServletRequest req) {
+        if (req == null) return null;
+        jakarta.servlet.http.Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (jakarta.servlet.http.Cookie ck : cookies) {
+                if ("cb_token".equals(ck.getName()) && ck.getValue() != null && !ck.getValue().isBlank()) {
+                    return ck.getValue();
+                }
+            }
+        }
+        String header = req.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            String v = header.substring(7).trim();
+            return v.isEmpty() ? null : v;
         }
         return null;
     }

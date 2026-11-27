@@ -146,7 +146,7 @@
       const canEdit = (CarbonAPI.me() && CarbonAPI.me().role === 'admin');
       return `<div class="page">
         <div class="page-head"><div><h1 class="page-title">企业信息</h1>
-          <p class="page-desc">企业档案由平台管理员维护；填报员与访客只读</p></div>
+          <p class="page-desc">企业档案由平台管理员维护；其他成员只读</p></div>
           ${canEdit ? `<div class="page-actions"><button class="btn btn-primary" id="org-edit">${icon('gear', 15)} 编辑</button></div>` : ''}</div>
         <section class="card"><div class="card-head"><h2 class="card-title">企业信息</h2>
           <span class="tag tag-muted">${canEdit ? '可编辑' : '只读'}</span></div>
@@ -169,6 +169,50 @@
 
   /* ============ 碳排放核算 ============ */
   const acState = { page: 1, size: 10, sort: { k: 'period', dir: 'desc' }, kw: '', from: '', to: '', status: '', sel: new Set(), rows: DB.accounting.slice() };
+  /** 原始状态 → 旧版展示状态（bootstrap 快照里的 status 字段口径，保留兼容）。 */
+  const acLegacyStatus = (s) => (s === 'locked' || s === 'submitted') ? 'done' : (s === 'calculated' ? 'review' : 'draft');
+  let acSyncing = false;
+  /**
+   * 进入核算列表时的轻量状态刷新（BUG-002）。
+   * <p>
+   * acState.rows 初始来自登录时的 bootstrap 快照；若期间被他人推进（例如已锁定），
+   * 旧会话会一直显示「草稿 + 计算」，直到手动刷新。这里只拉「期间 / 状态 / 版本」三个字段合并回来，
+   * 不重跑全量 bootstrap；状态实际变化才重绘，避免打断用户正在进行的操作。
+   * 只发 GET，不产生任何写操作（幂等断言 I01/I03 不受影响）。
+   */
+  function acSyncStatus() {
+    const api = window.CarbonAPI || {};
+    if (!api.request || acSyncing) return;
+    acSyncing = true;
+    api.request('GET', '/accounting-periods')
+      .then((list) => {
+        acSyncing = false;
+        if (!Array.isArray(list) || !list.length) return;
+        const byPeriod = new Map(list.map(x => [x.period, x]));
+        let changed = false;
+        acState.rows.forEach((r) => {
+          const s = byPeriod.get(r.period);
+          if (!s) return;
+          const rawStatus = s.status || 'draft';
+          const version = s.version == null ? r.version : s.version;
+          if (r.rawStatus !== rawStatus || r.version !== version) changed = true;
+          r.rawStatus = rawStatus;
+          r.version = version;
+          r.status = acLegacyStatus(rawStatus);
+          if (s.calcVersion != null) r.calcVersion = s.calcVersion;
+        });
+        if (!changed) return;
+        // 同步回全局快照，首页/详情等复用同一份数据时不会出现两套状态
+        (DB.accounting || []).forEach((d) => {
+          const r = acState.rows.find(x => x.period === d.period);
+          if (!r) return;
+          d.rawStatus = r.rawStatus; d.version = r.version; d.status = r.status;
+        });
+        const host = $('#ac-table');
+        if (host) acRefresh(host);
+      })
+      .catch(() => { acSyncing = false; });
+  }
   const acFiltered = () => {
     let rows = acState.rows.slice();
     if (acState.kw) rows = rows.filter(r => r.id.toLowerCase().includes(acState.kw.toLowerCase()) || r.period.includes(acState.kw));
@@ -390,6 +434,8 @@
       const acHost = $('#ac-table');
       if (acHost) acHost.innerHTML = acTable();
       bindAc($('#ac-table')); syncBulk();
+      // 快照可能已过期：进入页面先按服务端最新状态校正一次（只读，不写）
+      acSyncStatus();
       UI.bindRangePickers($('#view'));
       $('#ac-search').onclick = () => {
         const box = $('#view').querySelector('[data-acrange] [data-rp]');

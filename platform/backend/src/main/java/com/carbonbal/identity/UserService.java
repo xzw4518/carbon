@@ -476,6 +476,16 @@ public class UserService {
         return Csv.build(List.of("手机号", "姓名", "角色", "状态", "工号", "职位", "最近登录"), rows);
     }
 
+    /**
+     * 导入模板：列与 {@link #importCsv} 解析顺序一致（手机号,姓名,角色,工号,职位）。
+     * 示例行仅示范写法，导入前需替换为真实数据。
+     */
+    public byte[] importTemplateCsv() {
+        return Csv.build(List.of("手机号", "姓名", "角色", "工号", "职位"), List.of(
+                List.of("13900000001", "张三", "运营", "EMP001", "能源管理员"),
+                List.of("13900000002", "李四", "运营", "EMP002", "碳核算专员")));
+    }
+
     /** 席位上限来自租户套餐；用尽时拒绝新增成员。 */
     private void assertSeatAvailable() {
         Long orgId = CurrentUser.orgId();
@@ -529,16 +539,20 @@ public class UserService {
         }
     }
 
-    private static final Set<String> LEGACY_ROLES = Set.of("admin", "filler", "reviewer", "approver", "viewer");
+    /** 账号导入/新增允许的角色写法：中文角色名 + 旧版英文值，统一映射到两级成员类型。 */
+    private static final Set<String> ADMIN_ROLE_ALIASES =
+            Set.of("admin", "tenant_admin", "管理员", "租户管理员");
+    private static final Set<String> USER_ROLE_ALIASES =
+            Set.of("user", "运营", "普通用户", "filler", "reviewer", "approver", "viewer");
 
     /** 新入参优先 userType；旧入参按 admin / 其他 映射到三级身份。 */
     private String resolveUserType(String userType, String role) {
         if ("tenant_admin".equals(userType) || "user".equals(userType)) return userType;
         if (role != null && !role.isBlank()) {
-            if (!LEGACY_ROLES.contains(role)) {
-                throw BizException.validation("用户类型或角色不合法");
-            }
-            return "admin".equals(role) ? "tenant_admin" : "user";
+            String r = role.trim();
+            if (ADMIN_ROLE_ALIASES.contains(r)) return "tenant_admin";
+            if (USER_ROLE_ALIASES.contains(r)) return "user";
+            throw BizException.validation("角色不合法，可选：运营 / 租户管理员");
         }
         return "user";
     }

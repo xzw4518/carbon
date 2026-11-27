@@ -22,6 +22,12 @@ public class AccountingDtos {
 
     public record UnlockView(Long id, String reason, String requestedBy, String approvedBy, LocalDateTime at) {}
 
+    /**
+     * 核算期"轻量状态"：列表页跨会话刷新只取这几个字段，
+     * 避免为了同步状态而重新拉一遍全量 bootstrap 快照（BUG-002）。
+     */
+    public record PeriodStatus(String period, String status, Integer version, Integer calcVersion) {}
+
     public record PeriodView(
             Long id, String period, String status,
             BigDecimal scope1, BigDecimal scope2, BigDecimal total,
