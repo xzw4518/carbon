@@ -1,0 +1,1239 @@
+{
+  "base": "http://127.0.0.1:8088",
+  "pages": [
+    {
+      "module": "首页",
+      "name": "首页",
+      "path": "/home",
+      "page": "home",
+      "group": "首页"
+    },
+    {
+      "module": "企业管理",
+      "name": "企业信息",
+      "path": "/enterprise/info",
+      "page": "enterprise.info",
+      "group": "企业管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "企业管理",
+      "name": "集团汇总",
+      "path": "/group/overview",
+      "page": "group.overview",
+      "group": "企业管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "预算管理",
+      "name": "碳排放配额",
+      "path": "/carbon-emission/quota/list",
+      "page": "quota.list",
+      "group": "预算管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "产值管理",
+      "name": "产品列表",
+      "path": "/carbon-product/product/list",
+      "page": "product.list",
+      "group": "产值管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "产值管理",
+      "name": "产品产值",
+      "path": "/carbon-output/production-value/list",
+      "page": "production.value",
+      "group": "产值管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "产值管理",
+      "name": "生产总值",
+      "path": "/carbon-output/total-value/list",
+      "page": "total.value",
+      "group": "产值管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "碳排放核算",
+      "name": "碳排放核算",
+      "path": "/carbon-computation/calculation-complete/list",
+      "page": "accounting.list",
+      "group": "碳排放核算",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "碳足迹管理",
+      "name": "碳足迹核算",
+      "path": "/carbon-footprint/product-footprint/list",
+      "page": "footprint.list",
+      "group": "碳足迹管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "碳足迹管理",
+      "name": "碳足迹分析",
+      "path": "/carbon-footprint/product-footprint-analysis/index",
+      "page": "footprint.analysis",
+      "group": "碳足迹管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "碳足迹管理",
+      "name": "供应链碳管理",
+      "path": "/carbon-footprint/supplier-footprint/list",
+      "page": "supplier.list",
+      "group": "碳足迹管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "碳足迹管理",
+      "name": "供应链碳管理分析",
+      "path": "/carbon-footprint/supplier-footprint-analysis/index",
+      "page": "supplier.analysis",
+      "group": "碳足迹管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "碳资产管理",
+      "name": "碳配额资产管理",
+      "path": "/carbon-asset/asset/list",
+      "page": "asset.list",
+      "group": "碳资产管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "碳资产管理",
+      "name": "信用资产管理",
+      "path": "/carbon-asset/ccer/list",
+      "page": "ccer.list",
+      "group": "碳资产管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "碳资产管理",
+      "name": "交易管理",
+      "path": "/carbon-asset/trade/list",
+      "page": "trade.list",
+      "group": "碳资产管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "碳核查支撑",
+      "name": "原始凭证管理",
+      "path": "/carbon-verify/evidence/list",
+      "page": "evidence.list",
+      "group": "碳核查支撑",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "碳核查支撑",
+      "name": "第三方报告管理",
+      "path": "/carbon-verify/report/list",
+      "page": "third.report",
+      "group": "碳核查支撑",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "报告查询",
+      "name": "碳排放报告",
+      "path": "/carbon-report/calculation-report/query",
+      "page": "report.carbon",
+      "group": "报告查询",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "报告查询",
+      "name": "能源利用报告",
+      "path": "/carbon-report/energy-utilization-report/query",
+      "page": "report.energy",
+      "group": "报告查询",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "报告查询",
+      "name": "产品碳足迹报告",
+      "path": "/carbon-report/product-footprint-report/query",
+      "page": "report.footprint",
+      "group": "报告查询",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "能碳分析",
+      "name": "能耗查询",
+      "path": "/carbon-analysis/energy-consumption-query/index",
+      "page": "analysis.energy",
+      "group": "能碳分析",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "能碳分析",
+      "name": "能源消费分析与策略推荐",
+      "path": "/carbon-analysis/energy-strategy-recommend/index",
+      "page": "analysis.strategy",
+      "group": "能碳分析",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "能碳分析",
+      "name": "能效对标",
+      "path": "/carbon-analysis/energy-efficiency-benchmarking/index",
+      "page": "analysis.benchmark",
+      "group": "能碳分析",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "能碳分析",
+      "name": "碳排放查询",
+      "path": "/carbon-analysis/energy-usage-management/index",
+      "page": "analysis.carbon",
+      "group": "能碳分析",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "能碳分析",
+      "name": "碳配额核算",
+      "path": "/carbon-analysis/carbon-quota-calculation/index",
+      "page": "analysis.quota",
+      "group": "能碳分析",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "能碳分析",
+      "name": "能流分析",
+      "path": "/carbon-analysis/energy-structure-analysis/index",
+      "page": "analysis.flow",
+      "group": "能碳分析",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "设备设施",
+      "name": "设施管理",
+      "path": "/carbon-facility/facility/list",
+      "page": "facility.list",
+      "group": "设备设施",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "设备设施",
+      "name": "设备管理",
+      "path": "/carbon-facility/device/list",
+      "page": "device.list",
+      "group": "设备设施",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "设备设施",
+      "name": "设备数据",
+      "path": "/carbon-facility/device-data/list",
+      "page": "device.data",
+      "group": "设备设施",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "预警管理",
+      "name": "事件预警",
+      "path": "/common-warning/event/list",
+      "page": "alert.event",
+      "group": "预警管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "预警管理",
+      "name": "预警设置",
+      "path": "/common-warning/setting/list",
+      "page": "alert.setting",
+      "group": "预警管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "预警管理",
+      "name": "预警记录",
+      "path": "/common-warning/record/list",
+      "page": "alert.record",
+      "group": "预警管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "节能管理",
+      "name": "节能改造项目",
+      "path": "/carbon-economize/renovation-project/list",
+      "page": "retrofit.list",
+      "group": "节能管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "节能管理",
+      "name": "能源管理情况",
+      "path": "/carbon-economize/management-situation/list",
+      "page": "energy.mgmt",
+      "group": "节能管理",
+      "adminOnly": false,
+      "platform": false
+    },
+    {
+      "module": "系统管理",
+      "name": "账号管理",
+      "path": "/system/users",
+      "group": "系统管理",
+      "adminOnly": true,
+      "platform": false
+    },
+    {
+      "module": "系统管理",
+      "name": "角色管理",
+      "path": "/system/roles",
+      "group": "系统管理",
+      "adminOnly": true,
+      "platform": false
+    },
+    {
+      "module": "系统管理",
+      "name": "租户信息",
+      "path": "/system/tenant",
+      "group": "系统管理",
+      "adminOnly": true,
+      "platform": false
+    },
+    {
+      "module": "系统管理",
+      "name": "审计日志",
+      "path": "/system/audit",
+      "group": "系统管理",
+      "adminOnly": true,
+      "platform": false
+    },
+    {
+      "module": "平台管理",
+      "name": "平台概览",
+      "path": "/platform/overview",
+      "group": "平台管理",
+      "adminOnly": false,
+      "platform": true
+    },
+    {
+      "module": "平台管理",
+      "name": "租户管理",
+      "path": "/platform/tenants",
+      "group": "平台管理",
+      "adminOnly": false,
+      "platform": true
+    },
+    {
+      "module": "平台管理",
+      "name": "平台审计",
+      "path": "/platform/audit",
+      "group": "平台管理",
+      "adminOnly": false,
+      "platform": true
+    }
+  ],
+  "cases": [
+    {
+      "tc": "TC-RENDER-00",
+      "page": "登录",
+      "module": "鉴权",
+      "title": "管理员真实登录（含图形验证码）",
+      "expect": "进入首页",
+      "actual": "首页",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-RENDER-01",
+      "page": "首页",
+      "module": "首页",
+      "title": "渲染 /home",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=首页 文本=430字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-home.png"
+    },
+    {
+      "tc": "TC-RENDER-02",
+      "page": "企业信息",
+      "module": "企业管理",
+      "title": "渲染 /enterprise/info",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=企业信息 文本=262字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-enterprise_info.png"
+    },
+    {
+      "tc": "TC-RENDER-03",
+      "page": "集团汇总",
+      "module": "企业管理",
+      "title": "渲染 /group/overview",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=集团汇总 文本=234字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-group_overview.png"
+    },
+    {
+      "tc": "TC-RENDER-04",
+      "page": "碳排放配额",
+      "module": "预算管理",
+      "title": "渲染 /carbon-emission/quota/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=碳排放配额 文本=154字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-emission_quota_list.png"
+    },
+    {
+      "tc": "TC-RENDER-05",
+      "page": "产品列表",
+      "module": "产值管理",
+      "title": "渲染 /carbon-product/product/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=产品列表 文本=490字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-product_product_list.png"
+    },
+    {
+      "tc": "TC-RENDER-06",
+      "page": "产品产值",
+      "module": "产值管理",
+      "title": "渲染 /carbon-output/production-value/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=产品产值 文本=462字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-output_production-value_list.png"
+    },
+    {
+      "tc": "TC-RENDER-07",
+      "page": "生产总值",
+      "module": "产值管理",
+      "title": "渲染 /carbon-output/total-value/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=生产总值 文本=295字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-output_total-value_list.png"
+    },
+    {
+      "tc": "TC-RENDER-08",
+      "page": "碳排放核算",
+      "module": "碳排放核算",
+      "title": "渲染 /carbon-computation/calculation-complete/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=碳排放核算 文本=248字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-computation_calculation-complete_list.png"
+    },
+    {
+      "tc": "TC-RENDER-09",
+      "page": "碳足迹核算",
+      "module": "碳足迹管理",
+      "title": "渲染 /carbon-footprint/product-footprint/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=碳足迹核算 文本=586字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-footprint_product-footprint_list.png"
+    },
+    {
+      "tc": "TC-RENDER-10",
+      "page": "碳足迹分析",
+      "module": "碳足迹管理",
+      "title": "渲染 /carbon-footprint/product-footprint-analysis/index",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=碳足迹分析 文本=504字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-footprint_product-footprint-analysis_index.png"
+    },
+    {
+      "tc": "TC-RENDER-11",
+      "page": "供应链碳管理",
+      "module": "碳足迹管理",
+      "title": "渲染 /carbon-footprint/supplier-footprint/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=供应链碳管理 文本=420字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-footprint_supplier-footprint_list.png"
+    },
+    {
+      "tc": "TC-RENDER-12",
+      "page": "供应链碳管理分析",
+      "module": "碳足迹管理",
+      "title": "渲染 /carbon-footprint/supplier-footprint-analysis/index",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=供应链碳管理分析 文本=587字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-footprint_supplier-footprint-analysis_index.png"
+    },
+    {
+      "tc": "TC-RENDER-13",
+      "page": "碳配额资产管理",
+      "module": "碳资产管理",
+      "title": "渲染 /carbon-asset/asset/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=碳配额资产管理 文本=311字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-asset_asset_list.png"
+    },
+    {
+      "tc": "TC-RENDER-14",
+      "page": "信用资产管理",
+      "module": "碳资产管理",
+      "title": "渲染 /carbon-asset/ccer/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=信用资产管理 文本=190字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-asset_ccer_list.png"
+    },
+    {
+      "tc": "TC-RENDER-15",
+      "page": "交易管理",
+      "module": "碳资产管理",
+      "title": "渲染 /carbon-asset/trade/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=交易管理 文本=324字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-asset_trade_list.png"
+    },
+    {
+      "tc": "TC-RENDER-16",
+      "page": "原始凭证管理",
+      "module": "碳核查支撑",
+      "title": "渲染 /carbon-verify/evidence/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=原始凭证管理 文本=323字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-verify_evidence_list.png"
+    },
+    {
+      "tc": "TC-RENDER-17",
+      "page": "第三方报告管理",
+      "module": "碳核查支撑",
+      "title": "渲染 /carbon-verify/report/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=第三方报告管理 文本=355字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-verify_report_list.png"
+    },
+    {
+      "tc": "TC-RENDER-18",
+      "page": "碳排放报告",
+      "module": "报告查询",
+      "title": "渲染 /carbon-report/calculation-report/query",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=碳排放报告 文本=602字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-report_calculation-report_query.png"
+    },
+    {
+      "tc": "TC-RENDER-19",
+      "page": "能源利用报告",
+      "module": "报告查询",
+      "title": "渲染 /carbon-report/energy-utilization-report/query",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=能源利用报告 文本=543字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-report_energy-utilization-report_query.png"
+    },
+    {
+      "tc": "TC-RENDER-20",
+      "page": "产品碳足迹报告",
+      "module": "报告查询",
+      "title": "渲染 /carbon-report/product-footprint-report/query",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=产品碳足迹报告 文本=601字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-report_product-footprint-report_query.png"
+    },
+    {
+      "tc": "TC-RENDER-21",
+      "page": "能耗查询",
+      "module": "能碳分析",
+      "title": "渲染 /carbon-analysis/energy-consumption-query/index",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=能耗查询 文本=415字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-analysis_energy-consumption-query_index.png"
+    },
+    {
+      "tc": "TC-RENDER-22",
+      "page": "能源消费分析与策略推荐",
+      "module": "能碳分析",
+      "title": "渲染 /carbon-analysis/energy-strategy-recommend/index",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=能源消费分析与策略推荐 文本=329字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-analysis_energy-strategy-recommend_index.png"
+    },
+    {
+      "tc": "TC-RENDER-23",
+      "page": "能效对标",
+      "module": "能碳分析",
+      "title": "渲染 /carbon-analysis/energy-efficiency-benchmarking/index",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=能效对标 文本=542字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-analysis_energy-efficiency-benchmarking_index.png"
+    },
+    {
+      "tc": "TC-RENDER-24",
+      "page": "碳排放查询",
+      "module": "能碳分析",
+      "title": "渲染 /carbon-analysis/energy-usage-management/index",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=碳排放查询 文本=464字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-analysis_energy-usage-management_index.png"
+    },
+    {
+      "tc": "TC-RENDER-25",
+      "page": "碳配额核算",
+      "module": "能碳分析",
+      "title": "渲染 /carbon-analysis/carbon-quota-calculation/index",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=碳配额核算 文本=737字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-analysis_carbon-quota-calculation_index.png"
+    },
+    {
+      "tc": "TC-RENDER-26",
+      "page": "能流分析",
+      "module": "能碳分析",
+      "title": "渲染 /carbon-analysis/energy-structure-analysis/index",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=能流分析 文本=405字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-analysis_energy-structure-analysis_index.png"
+    },
+    {
+      "tc": "TC-RENDER-27",
+      "page": "设施管理",
+      "module": "设备设施",
+      "title": "渲染 /carbon-facility/facility/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=设施管理 文本=320字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-facility_facility_list.png"
+    },
+    {
+      "tc": "TC-RENDER-28",
+      "page": "设备管理",
+      "module": "设备设施",
+      "title": "渲染 /carbon-facility/device/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=设备管理 文本=519字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-facility_device_list.png"
+    },
+    {
+      "tc": "TC-RENDER-29",
+      "page": "设备数据",
+      "module": "设备设施",
+      "title": "渲染 /carbon-facility/device-data/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=设备数据 文本=749字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-facility_device-data_list.png"
+    },
+    {
+      "tc": "TC-RENDER-30",
+      "page": "事件预警",
+      "module": "预警管理",
+      "title": "渲染 /common-warning/event/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=事件预警 文本=196字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-common-warning_event_list.png"
+    },
+    {
+      "tc": "TC-RENDER-31",
+      "page": "预警设置",
+      "module": "预警管理",
+      "title": "渲染 /common-warning/setting/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=预警设置 文本=265字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-common-warning_setting_list.png"
+    },
+    {
+      "tc": "TC-RENDER-32",
+      "page": "预警记录",
+      "module": "预警管理",
+      "title": "渲染 /common-warning/record/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=预警记录 文本=465字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-common-warning_record_list.png"
+    },
+    {
+      "tc": "TC-RENDER-33",
+      "page": "节能改造项目",
+      "module": "节能管理",
+      "title": "渲染 /carbon-economize/renovation-project/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=节能改造项目 文本=308字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-economize_renovation-project_list.png"
+    },
+    {
+      "tc": "TC-RENDER-34",
+      "page": "能源管理情况",
+      "module": "节能管理",
+      "title": "渲染 /carbon-economize/management-situation/list",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=能源管理情况 文本=322字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-carbon-economize_management-situation_list.png"
+    },
+    {
+      "tc": "TC-RENDER-35",
+      "page": "账号管理",
+      "module": "系统管理",
+      "title": "渲染 /system/users",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=账号管理 文本=456字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-system_users.png"
+    },
+    {
+      "tc": "TC-RENDER-36",
+      "page": "角色管理",
+      "module": "系统管理",
+      "title": "渲染 /system/roles",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=角色管理 文本=176字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-system_roles.png"
+    },
+    {
+      "tc": "TC-RENDER-37",
+      "page": "租户信息",
+      "module": "系统管理",
+      "title": "渲染 /system/tenant",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=租户信息 文本=181字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-system_tenant.png"
+    },
+    {
+      "tc": "TC-RENDER-38",
+      "page": "审计日志",
+      "module": "系统管理",
+      "title": "渲染 /system/audit",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=审计日志 文本=1457字 错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-system_audit.png"
+    },
+    {
+      "tc": "TC-RENDER-39",
+      "page": "平台概览",
+      "module": "平台管理",
+      "title": "渲染 /platform/overview",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=无权访问 文本=36字 错误=0 [租户管理员无权访问→符合设计]",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-platform_overview.png"
+    },
+    {
+      "tc": "TC-RENDER-40",
+      "page": "租户管理",
+      "module": "平台管理",
+      "title": "渲染 /platform/tenants",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=无权访问 文本=36字 错误=0 [租户管理员无权访问→符合设计]",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-platform_tenants.png"
+    },
+    {
+      "tc": "TC-RENDER-41",
+      "page": "平台审计",
+      "module": "平台管理",
+      "title": "渲染 /platform/audit",
+      "expect": "标题正确、内容非空、无 console 报错",
+      "actual": "crumb=无权访问 文本=36字 错误=0 [租户管理员无权访问→符合设计]",
+      "result": "PASS",
+      "depth": "深",
+      "note": "截图 page-platform_audit.png"
+    },
+    {
+      "tc": "TC-RENDER-SUM",
+      "page": "全部",
+      "module": "全页面",
+      "title": "41 个菜单入口渲染汇总",
+      "expect": "全部渲染成功",
+      "actual": "成功 41 / 失败 0",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-STATE-01",
+      "page": "碳排放配额",
+      "module": "预算管理",
+      "title": "配额列表有数据行",
+      "expect": ">=1 行",
+      "actual": "1 行",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-STATE-02",
+      "page": "碳排放核算",
+      "module": "核算",
+      "title": "核算期状态徽标展示",
+      "expect": "含草稿/已计算等中文徽标",
+      "actual": "徽标=[草稿]",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-STATE-03",
+      "page": "产品列表",
+      "module": "产值管理",
+      "title": "搜索无结果展示空态",
+      "expect": "显示空态提示",
+      "actual": "空态=\"暂无数据 可点击右上角新建\"",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-STATE-04",
+      "page": "首页",
+      "module": "首页",
+      "title": "KPI 数字带千分位或小数位",
+      "expect": "存在格式化数字",
+      "actual": "已格式化",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-STATE-05",
+      "page": "能流分析",
+      "module": "能碳分析",
+      "title": "桑基图渲染节点与流向带",
+      "expect": "svg 存在且节点>=3、流向带>=1",
+      "actual": "svg=1 节点=15 流向带=10",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-STATE-06",
+      "page": "能流分析",
+      "module": "能碳分析",
+      "title": "桑基图悬停显示数值 tooltip",
+      "expect": "tooltip 显示流向与占比",
+      "actual": "show=true \"总能耗 → 外购电力 39.86 tce · 占比 51.54%\"",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-STATE-07",
+      "page": "设备数据",
+      "module": "设备设施",
+      "title": "列表翻页（第 2 页）数据变化且无报错",
+      "expect": "首行内容变化、无 console 报错",
+      "actual": "可翻页=true 首行变化=true 新增错误=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-DEEP-01",
+      "page": "/carbon-product/product/list",
+      "module": "路由",
+      "title": "深链接直达并刷新 /carbon-product/product/list",
+      "expect": "首次与刷新后均为目标页且有内容",
+      "actual": "首次=产品列表/490字 刷新=产品列表/490字",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-DEEP-02",
+      "page": "/carbon-asset/trade/list",
+      "module": "路由",
+      "title": "深链接直达并刷新 /carbon-asset/trade/list",
+      "expect": "首次与刷新后均为目标页且有内容",
+      "actual": "首次=交易管理/324字 刷新=交易管理/324字",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-DEEP-03",
+      "page": "/carbon-verify/evidence/list",
+      "module": "路由",
+      "title": "深链接直达并刷新 /carbon-verify/evidence/list",
+      "expect": "首次与刷新后均为目标页且有内容",
+      "actual": "首次=原始凭证管理/323字 刷新=原始凭证管理/323字",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-DEEP-04",
+      "page": "/carbon-report/calculation-report/query",
+      "module": "路由",
+      "title": "深链接直达并刷新 /carbon-report/calculation-report/query",
+      "expect": "首次与刷新后均为目标页且有内容",
+      "actual": "首次=碳排放报告/602字 刷新=碳排放报告/602字",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-ROUTE-01",
+      "page": "/no-such-page-uat",
+      "module": "路由",
+      "title": "未知路由回退（404 或首页）",
+      "expect": "不白屏，回退到 404 页或首页",
+      "actual": "crumb=首页 内容=430字 404页=false hash=#/no-such-page-uat",
+      "result": "PASS",
+      "depth": "深",
+      "note": "当前为回退首页内容但保留非法 hash（未做地址栏纠正），建议 P3 优化"
+    },
+    {
+      "tc": "TC-ROUTE-02",
+      "page": "导航",
+      "module": "路由",
+      "title": "浏览器后退/前进回到正确页面",
+      "expect": "后退两次到 产品列表→碳配额资产，前进回 原始凭证",
+      "actual": "后退1=碳配额资产管理 后退2=产品列表 前进=碳配额资产管理",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-AUTH-01",
+      "page": "未登录直链",
+      "module": "鉴权",
+      "title": "未登录直链渲染登录框（不泄露页面）",
+      "expect": "登录遮罩可见且 hash 保持",
+      "actual": "遮罩可见=1 hash=#/carbon-computation/calculation-complete/list",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-AUTH-02",
+      "page": "未登录直链",
+      "module": "鉴权",
+      "title": "登录后回跳到原目标页",
+      "expect": "hash 与页面均停留在原目标页",
+      "actual": "hash=#/carbon-computation/calculation-complete/list crumb=碳排放核算 内容=248字",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-PERM-01",
+      "page": "平台超管",
+      "module": "权限",
+      "title": "平台账号菜单只含平台三项",
+      "expect": "3 项且不含业务菜单",
+      "actual": "菜单=[平台概览,租户管理,平台审计]",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-PERM-02",
+      "page": "平台超管",
+      "module": "权限",
+      "title": "平台账号访问租户业务页被拦",
+      "expect": "显示无权访问",
+      "actual": "crumb=无权访问",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-RENDER-PLAToverview",
+      "page": "/platform/overview",
+      "module": "平台管理",
+      "title": "平台账号渲染 /platform/overview",
+      "expect": "平台概览 且内容非空",
+      "actual": "crumb=平台概览 内容=561字",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-RENDER-PLATtenants",
+      "page": "/platform/tenants",
+      "module": "平台管理",
+      "title": "平台账号渲染 /platform/tenants",
+      "expect": "租户管理 且内容非空",
+      "actual": "crumb=租户管理 内容=555字",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-RENDER-PLATaudit",
+      "page": "/platform/audit",
+      "module": "平台管理",
+      "title": "平台账号渲染 /platform/audit",
+      "expect": "平台审计 且内容非空",
+      "actual": "crumb=平台审计 内容=493字",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-PERM-03",
+      "page": "受限角色",
+      "module": "权限",
+      "title": "受限角色侧栏仅显示已授权页面",
+      "expect": "仅首页+产品列表",
+      "actual": "菜单=[首页,产品列表]",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-PERM-04",
+      "page": "受限角色",
+      "module": "权限",
+      "title": "受限角色直链访问未授权页面被 403",
+      "expect": "弹「无权访问」",
+      "actual": "全部拦截=true",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-PERM-05",
+      "page": "受限角色",
+      "module": "权限",
+      "title": "受限角色访问系统管理被拦",
+      "expect": "无权访问",
+      "actual": "crumb=无权访问",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-PERM-06",
+      "page": "集团汇总",
+      "module": "权限",
+      "title": "group.overview 特权页访问控制",
+      "expect": "无授权→无权访问；有授权→展示集团数据",
+      "actual": "crumb=集团汇总 内容含集团=true",
+      "result": "PASS",
+      "depth": "深",
+      "note": "默认运营角色不含该页面，应按 403 处理"
+    },
+    {
+      "tc": "TC-FORM-01",
+      "page": "产品列表",
+      "module": "表单校验",
+      "title": "点击「新建」打开表单弹窗",
+      "expect": "弹窗出现",
+      "actual": "弹窗数=1",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-FORM-02",
+      "page": "产品列表",
+      "module": "表单校验",
+      "title": "空表单提交触发必填校验",
+      "expect": "出现必填错误提示",
+      "actual": "提示=[产品名称产品名称 必填 / 产品名称 必填 / 单位吨千吨万吨克千克个万个件万件箱\n      请选择\n      吨✓千吨✓万吨✓克✓千克✓个✓万个✓件✓万件✓箱✓\n      \n    单位 必填 / 单位 必填]",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-FORM-03",
+      "page": "产品列表",
+      "module": "表单校验",
+      "title": "名称输入 130 字时的长度约束",
+      "expect": "被 maxlength 截断或提交报错",
+      "actual": "实际长度=120",
+      "result": "PASS",
+      "depth": "浅",
+      "note": "前端已截断"
+    },
+    {
+      "tc": "TC-UI-XSS-01",
+      "page": "产品列表",
+      "module": "安全",
+      "title": "XSS 载荷在列表按文本渲染（不注入 <img>）",
+      "expect": "无 img 注入且原文以文本显示",
+      "actual": "注入 img=0 原文可见=true",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-UI-CONFIRM-01",
+      "page": "产品列表",
+      "module": "交互",
+      "title": "删除需二次确认且取消不生效",
+      "expect": "出现确认弹窗，取消后数据仍在",
+      "actual": "确认文案=true 取消后行数=6",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-UI-DEBOUNCE-01",
+      "page": "碳排放核算",
+      "module": "交互",
+      "title": "计算按钮连点只触发一次请求",
+      "expect": "只发出 1 个 POST",
+      "actual": "实际发出 1 个",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-STATE-08",
+      "page": "碳排放核算",
+      "module": "核算",
+      "title": "锁定期间列表展示「已锁定」徽标",
+      "expect": "出现已锁定徽标",
+      "actual": "行=\"2026-11 AC-2026-11 已锁定 177.7 tCO₂e 48.8 tce GB/T 32151.9-2024 工业其他行业 GB/T 32151.\"",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-STATE-09",
+      "page": "碳排放核算",
+      "module": "核算",
+      "title": "锁定期间写操作按钮不再提供（仅查看/解锁）",
+      "expect": "无计算/提交/编辑按钮",
+      "actual": "按钮=[查看,解锁] 写按钮=0",
+      "result": "PASS",
+      "depth": "深",
+      "note": "服务端另有 409 兜底，见 TC-ST-11"
+    },
+    {
+      "tc": "TC-STATE-10",
+      "page": "碳排放核算",
+      "module": "核算",
+      "title": "同会话内状态变更后的列表一致性",
+      "expect": "列表反映最新状态（已锁定）",
+      "actual": "旧会话列表仍显示=旧状态",
+      "result": "FAIL",
+      "depth": "浅",
+      "note": "数据源为登录时 bootstrap 快照，跨会话变更需手动「刷新」后才同步（P3）"
+    },
+    {
+      "tc": "TC-EXC-01",
+      "page": "产品列表",
+      "module": "异常",
+      "title": "接口失败时给出可见错误提示",
+      "expect": "出现网络异常提示",
+      "actual": "toast=\"网络异常，请检查网络连接后重试\"",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-EXC-02",
+      "page": "碳排放配额",
+      "module": "异常",
+      "title": "接口 500 时页面不白屏且有提示",
+      "expect": "有 toast 或错误占位",
+      "actual": "toast=\"网络异常，请检查网络连接后重试\" 正文=\"碳排放配额 年度配额分配、履约进度与下年度预测量 年度 查询 重置 新建 批量删\"",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    },
+    {
+      "tc": "TC-EXC-03",
+      "page": "全局",
+      "module": "鉴权",
+      "title": "token 失效后回到登录页",
+      "expect": "登录遮罩可见",
+      "actual": "遮罩=1",
+      "result": "PASS",
+      "depth": "深",
+      "note": ""
+    }
+  ],
+  "pass": 78,
+  "fail": 1,
+  "skip": 0
+}

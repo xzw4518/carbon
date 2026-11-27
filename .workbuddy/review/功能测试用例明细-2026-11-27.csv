@@ -1,0 +1,174 @@
+﻿编号,模块,页面,用例,预期,实际,判定,备注
+TC-PRE-01,环境准备,企业信息,企业名称为初始值,华东精密制造有限公司,华东精密制造有限公司,PASS,
+TC-AUTH-01,鉴权,全局,无 token 访问业务接口返回 401,401 + UNAUTHORIZED,401 UNAUTHORIZED,PASS,
+TC-AUTH-02,鉴权,全局,伪造 token 被拒,401,401 UNAUTHORIZED,PASS,
+TC-AUTH-03,鉴权,全局,篡改签名的 token 被拒,401,401 UNAUTHORIZED,PASS,
+TC-AUTH-04,鉴权,全局,用户名登录兼容入口可用,拿到 token,token_len=281,PASS,
+TC-AUTH-05,鉴权,全局,错误密码登录被拒,401 AUTH_BAD_CREDENTIAL,401 AUTH_BAD_CREDENTIAL 手机号或密码错误,PASS,
+TC-AUTH-06,鉴权,全局,图形验证码错误被拒,400 AUTH_CAPTCHA_INVALID,400 AUTH_CAPTCHA_INVALID,PASS,
+TC-AUTH-07,鉴权,全局,平台超管 /me 标识 platformAdmin,user.platformAdmin=True,platformAdmin=True,PASS,
+TC-AUTH-08,鉴权,全局,平台超管代管进入租户需显式动作（enter-tenant）,200 或 403 且有明确响应,200 ,PASS,
+TC-AUTH-09,鉴权,全局,登出后旧 token 立即失效,401（服务端应提升 tv / 吊销 jti）,登出后仍可访问：200 200,FAIL,登出仅清 Cookie，Bearer 令牌未吊销；见问题清单
+TC-AUTH-10,鉴权,全局,临时密码未改密前业务接口被 403 拦截,403 MUST_CHANGE_PASSWORD,403 MUST_CHANGE_PASSWORD,PASS,
+TC-PERM-01,权限控制,全部 34 页,34 个页面接口无 token 均返回 401,全部 401,异常 0 个: 无,PASS,
+TC-PERM-02,权限控制,全部 34 页,普通用户对已授权页面可读，group.overview 被 403,34 项符合,异常 0 项: 无,PASS,
+TC-PERM-03,权限控制,全部 34 页,受限角色（仅 home+product.list）越权接口被 403,未授权页面全部 403,漏拦 0 项: 无,PASS,
+TC-PERM-04,权限控制,全部 34 页,受限角色对已授权页面仍可访问,home/product.list 200,异常: 无,PASS,
+TC-PERM-05,权限控制,系统管理/角色管理,角色页面含非法编码被拒,400,400 VALIDATION,PASS,
+TC-PERM-06,权限控制,系统管理,普通用户读账号/角色/审计全部 403,全部 403,异常: 无,PASS,
+TC-PERM-07,权限控制,平台管理,租户管理员读平台接口全部 403,全部 403,异常: 无,PASS,
+TC-PERM-08,权限控制,平台管理,平台超管读平台接口全部 200,全部 200,异常: 无,PASS,
+TC-PERM-09,权限控制,导出,受限角色只能导出已授权页面资源,products 200 / devices 403,products=200 devices=403,PASS,
+TC-XT-01,权限控制,跨租户,新建租户管理员可登录,拿到 token,orgId=7 token=有,PASS,
+TC-XT-02,权限控制,跨租户,租户2 在自己的上下文创建产品,200 + id,200 id=107,PASS,
+TC-XT-03,权限控制,跨租户,租户1 读租户2 产品详情被隔离,404 或 403,404 NOT_FOUND,PASS,
+TC-XT-04,权限控制,跨租户,租户1 修改租户2 数据被拒绝,404 或 403,404 NOT_FOUND,PASS,
+TC-XT-05,权限控制,跨租户,租户1 删除租户2 数据被拒绝,404 或 403,404 NOT_FOUND,PASS,
+TC-XT-06,权限控制,跨租户,租户1 列表搜不到租户2 产品,total=0,total=0,PASS,
+TC-XT-07,权限控制,跨租户,带他人 orgId 参数不改变数据范围,与不带参数一致且不含他人数据,total=5（基线 5） 含他人数据=False,PASS,
+TC-XT-08,权限控制,跨租户,平台超管可查看任意租户详情,200,200,PASS,
+TC-VAL-01,表单校验,产品列表,产品新增空表单返回必填错误,400 VALIDATION + 名称必填,400 VALIDATION 参数校验失败 cls:产品分类必填 code:编码必填 name:名称必填 unit:单位必填 type:产品类型必填,PASS,
+TC-VAL-02,表单校验,产品列表,名称 121 字超长被拒,400 名称最长 120 字,400 VALIDATION 参数校验失败 name:名称最长 120 字,PASS,
+TC-VAL-03,表单校验,产品列表,名称 120 字边界可通过,200,"200 {'status': 0, 'body': {'id': 108, 'orgId': 1, 'name': '长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长",PASS,
+TC-VAL-04,表单校验,产品列表,备注 501 字被拒,400 备注最长 500 字,400 VALIDATION 参数校验失败 remark:备注最长 500 字,PASS,
+TC-VAL-05,表单校验,产品列表,产品类型枚举非法被拒,400 枚举提示,400 VALIDATION 参数校验失败 type:产品类型只能是 一般产品 / 低碳产品 / 零碳产品,PASS,
+TC-VAL-06,表单校验,产品列表,单位产品能耗为负被拒,400 不能为负,400 VALIDATION 参数校验失败 l1:单位产品能耗值不能为负,PASS,
+TC-VAL-07,表单校验,产品列表,能耗值 0 允许（非负）,200,"200 {'status': 0, 'body': {'id': 109, 'orgId': 1, 'name': 'TST-UAT零值', 'code': 'UAT0-56351', 'type': '一般产品', 'cls': '工业产品', 'unit': '吨', 'l1': 0, 'l2': 0, 'l3': 0, ",PASS,
+TC-VAL-09,表单校验,产品列表,产品编码重复被拒,409 DUPLICATE,409 DUPLICATE,PASS,
+TC-VAL-11,表单校验,产品列表,搜索框 SQL 注入载荷不报错不越权,200 且 total=0,200 total=0,PASS,
+TC-VAL-12,表单校验,产品列表,分页参数边界（0/-1/超大）不 500,全部 200,200,PASS,
+TC-VAL-13,表单校验,产品列表,size 超上限自动收敛,size<=200,size=200 rows=9,PASS,
+TC-VAL-14,表单校验,产品列表,超出总页数返回空列表但不报错,200 + rows=[],200 rows=0,PASS,
+TC-VAL-15,表单校验,产品列表,特殊字符搜索不报错,200,"200 {'status': 0, 'body': {'total': 0, 'rows': [], 'page': 1, 'size': 10}}",PASS,
+TC-VAL-16,表单校验,产品产值,月份 2026-13 非法被拒,400,400 VALIDATION 参数校验失败 unit:产值单位必填 qtyUnit:产量单位必填 period:月份必填 qty:产量必填,PASS,
+TC-VAL-17,表单校验,产品产值,产值负数被拒,400,400 VALIDATION 参数校验失败 qty:产量必填 value:产值不能为负 unit:产值单位必填 qtyUnit:产量单位必填 period:月份必填,PASS,
+TC-VAL-18,表单校验,碳排放核算,非法核算期读取不报错且标记 absent,200 + status=absent,200 status=absent,PASS,按月字符串原样查询，未命中即 absent，属设计而非缺陷
+TC-VAL-19,表单校验,碳配额资产,资产数量为负被拒,400 数量不能为负,400 VALIDATION 参数校验失败 qty:数量不能为负,PASS,
+TC-VAL-20,表单校验,碳配额资产,年度早于 2000 被拒,400 年度不能早于 2000,400 VALIDATION 参数校验失败 year:年度不能早于 2000,PASS,
+TC-VAL-21,表单校验,交易管理,交易数量 0 被拒（必须 >0）,400 数量必须大于 0,400 VALIDATION 参数校验失败 qty:数量必须大于 0,PASS,
+TC-VAL-22,表单校验,交易管理,交易类型枚举非法被拒,400 只能是 购入/售出,400 VALIDATION 交易类型只能是 购入 / 售出,PASS,
+TC-VAL-30,表单校验,交易管理,售出数量超可用余额被拒,409 INSUFFICIENT + 可用量明细,409 INSUFFICIENT 可用数量不足，无法售出 requested:999.0 available:10.0,PASS,
+TC-VAL-31,表单校验,交易管理,售出成功后资产余额扣减（10→6）,200 且 qty=6,200 qty=6.0,PASS,
+TC-VAL-23,表单校验,交易管理,交易日期非法格式被拒,400 而非 500,400 VALIDATION,PASS,
+TC-VAL-24,表单校验,碳足迹核算,足迹数量必须大于 0,400,400 VALIDATION 参数校验失败 name:产品名称必填 footprint:足迹值必填 qty:数量必须大于 0,PASS,
+TC-VAL-25,表单校验,设备数据,读数负数被拒,400,400 VALIDATION 参数校验失败 ts:时间必填 qty:数值必填 source:来源必填,PASS,
+TC-VAL-26,表单校验,预警设置,预警阈值为负被拒,400,400 VALIDATION 参数校验失败 op:条件必填 level:等级必填 unit:单位必填 threshold:阈值不能为负,PASS,
+TC-VAL-27,表单校验,企业信息,企业名称清空提交被拒,400 必填,400 VALIDATION 参数校验失败 name:企业名称必填,PASS,
+TC-VAL-28,表单校验,账号管理,手机号已存在时新增成员被拒,409 PHONE_TAKEN 或 DUPLICATE,409 DUPLICATE 该手机号已是本企业成员,PASS,
+TC-VAL-29,表单校验,账号管理,手机号格式非法被拒,400,400 VALIDATION 参数校验失败 phone:手机号格式不正确,PASS,
+TC-ST-01,碳排放核算,碳排放核算,核算期初始状态可读,draft/calculated,status=draft,PASS,
+TC-ST-02,碳排放核算,碳排放核算,未计算直接提交被拒,400/409,400 VALIDATION 请先计算再提交,PASS,
+TC-ST-03,碳排放核算,碳排放核算,执行计算成功,200 → calculated,200 status=calculated,PASS,
+TC-ST-04,碳排放核算,碳排放核算,填报员提交核算期,200 → submitted,200 status=submitted,PASS,
+TC-ST-05,碳排放核算,碳排放核算,重复提交被拒（状态机）,400/409,400 VALIDATION 请先计算再提交,PASS,
+TC-ST-06,碳排放核算,碳排放核算,过期 version 复核被拒（VERSION_CONFLICT）,409,409 VERSION_CONFLICT,PASS,
+TC-RPT-01,碳排放核算,碳排放报告,生成碳排放报告并下载 PDF,200 + %PDF 文件头,200 %PDF- 大小=96942,PASS,
+TC-RPT-02,碳排放核算,能源利用报告,生成能源利用报告并下载 PDF,200 + %PDF 文件头,200 大小=84566,PASS,
+TC-RPT-03,碳排放核算,产品碳足迹报告,生成产品碳足迹报告（须指定 footprintId）,200,"200 {'status': 0, 'body': {'id': 5, 'type': 'footprint', 'period': '2026-11', 'refId': 1, 'periodLabel': '2026-11', 'fileName': '产品碳足迹报告_精密轴承座 A 型_2026-11-12.pdf', ",PASS,缺少 footprintId 时返回 400「必须指定 footprintId」，属参数校验
+TC-ST-07,碳排放核算,碳排放核算,复核人复核通过,200 → reviewed,200 status=reviewed,PASS,
+TC-ST-08,碳排放核算,碳排放核算,未批准直接锁定被拒,400/409,400 VALIDATION 请先完成复核与批准再锁定,PASS,
+TC-ST-09,碳排放核算,碳排放核算,批准人批准,200 → approved,200 status=approved,PASS,
+TC-ST-10,碳排放核算,碳排放核算,管理员锁定,200 → locked,200 status=locked,PASS,
+TC-ST-11,碳排放核算,碳排放核算,锁定期间写操作全部 409 PERIOD_LOCKED,全部 409,异常: 无,PASS,
+TC-ST-12,碳排放核算,碳排放核算,解锁回到 draft,200 → draft,200 status=draft,PASS,
+TC-ST-13,碳排放核算,碳排放核算,解锁后写操作恢复（非 409）,非 409,200 200,PASS,
+TC-ST-14,碳排放核算,碳排放核算,非锁定状态解锁被拒,400/409,400 VALIDATION,PASS,
+TC-IDEM-01,幂等与并发,产品列表,同一 Idempotency-Key 重复提交只落一条,两次 dbId 相同,dbId 112 / 112,PASS,
+TC-IDEM-02,幂等与并发,产品列表,幂等重放返回 Idempotent-Replay 标记,true,true,PASS,
+TC-IDEM-03,幂等与并发,产品列表,同键不同请求体返回 409 IDEMPOTENCY_CONFLICT,409,409 IDEMPOTENCY_CONFLICT,PASS,
+TC-IDEM-04,幂等与并发,产品列表,6 并发同键提交只创建 1 条,total=1,"total=1 codes=[409, 409, 409, 200, 200, 200]",PASS,
+TC-IDEM-05,幂等与并发,产品列表,同唯一键并发只成功 1 条，其余 409,total=1,"total=1 codes=[200, 409, 409, 409, 409]",PASS,
+TC-IDEM-06,幂等与并发,产品列表,幂等键超长被拒（>128）,400,400 VALIDATION,PASS,
+TC-HTTP-01,异常与边界,全局,未支持的方法返回 405,405,405 METHOD_NOT_ALLOWED,PASS,
+TC-HTTP-02,异常与边界,全局,非法 JSON 返回 400 而非 500,400,400,PASS,
+TC-HTTP-03,异常与边界,全局,错误 Content-Type 返回 415,415,415,PASS,
+TC-HTTP-04,异常与边界,全局,不存在的产品 id 返回 404,404 NOT_FOUND,404 NOT_FOUND,PASS,
+TC-HTTP-05,异常与边界,全局,非数字路径参数返回 400 而非 500,400,400 VALIDATION,PASS,
+TC-HTTP-06,异常与边界,全局,超大请求体被拒且不 500,4xx,400 VALIDATION,PASS,
+TC-HTTP-07,异常与边界,全局,未知导出资源被拒,400,400 VALIDATION,PASS,
+TC-HTTP-08,异常与边界,全局,报告类型非法时返回空集且不泄露其他类型,200 + total=0,200 total=0,PASS,type 为自由过滤参数，非法值等价于无匹配，未越权
+TC-HTTP-09,异常与边界,全局,分析区间格式非法被拒,400,400 VALIDATION,PASS,
+TC-HTTP-10,异常与边界,全局,导出 CSV 对公式注入做转义（前置单引号）,=cmd 被转义,"'=cmd|' /C calc'!A0,UATCSV-56351,,一般产品,工业产品,吨,,,",PASS,
+TC-RENDER-00,鉴权,登录,管理员真实登录（含图形验证码）,进入首页,首页,PASS,
+TC-RENDER-01,首页,首页,渲染 /home,标题正确、内容非空、无 console 报错,crumb=首页 文本=430字 错误=0,PASS,截图 page-home.png
+TC-RENDER-02,企业管理,企业信息,渲染 /enterprise/info,标题正确、内容非空、无 console 报错,crumb=企业信息 文本=262字 错误=0,PASS,截图 page-enterprise_info.png
+TC-RENDER-03,企业管理,集团汇总,渲染 /group/overview,标题正确、内容非空、无 console 报错,crumb=集团汇总 文本=234字 错误=0,PASS,截图 page-group_overview.png
+TC-RENDER-04,预算管理,碳排放配额,渲染 /carbon-emission/quota/list,标题正确、内容非空、无 console 报错,crumb=碳排放配额 文本=154字 错误=0,PASS,截图 page-carbon-emission_quota_list.png
+TC-RENDER-05,产值管理,产品列表,渲染 /carbon-product/product/list,标题正确、内容非空、无 console 报错,crumb=产品列表 文本=490字 错误=0,PASS,截图 page-carbon-product_product_list.png
+TC-RENDER-06,产值管理,产品产值,渲染 /carbon-output/production-value/list,标题正确、内容非空、无 console 报错,crumb=产品产值 文本=462字 错误=0,PASS,截图 page-carbon-output_production-value_list.png
+TC-RENDER-07,产值管理,生产总值,渲染 /carbon-output/total-value/list,标题正确、内容非空、无 console 报错,crumb=生产总值 文本=295字 错误=0,PASS,截图 page-carbon-output_total-value_list.png
+TC-RENDER-08,碳排放核算,碳排放核算,渲染 /carbon-computation/calculation-complete/list,标题正确、内容非空、无 console 报错,crumb=碳排放核算 文本=248字 错误=0,PASS,截图 page-carbon-computation_calculation-complete_list.png
+TC-RENDER-09,碳足迹管理,碳足迹核算,渲染 /carbon-footprint/product-footprint/list,标题正确、内容非空、无 console 报错,crumb=碳足迹核算 文本=586字 错误=0,PASS,截图 page-carbon-footprint_product-footprint_list.png
+TC-RENDER-10,碳足迹管理,碳足迹分析,渲染 /carbon-footprint/product-footprint-analysis/index,标题正确、内容非空、无 console 报错,crumb=碳足迹分析 文本=504字 错误=0,PASS,截图 page-carbon-footprint_product-footprint-analysis_index.png
+TC-RENDER-11,碳足迹管理,供应链碳管理,渲染 /carbon-footprint/supplier-footprint/list,标题正确、内容非空、无 console 报错,crumb=供应链碳管理 文本=420字 错误=0,PASS,截图 page-carbon-footprint_supplier-footprint_list.png
+TC-RENDER-12,碳足迹管理,供应链碳管理分析,渲染 /carbon-footprint/supplier-footprint-analysis/index,标题正确、内容非空、无 console 报错,crumb=供应链碳管理分析 文本=587字 错误=0,PASS,截图 page-carbon-footprint_supplier-footprint-analysis_index.png
+TC-RENDER-13,碳资产管理,碳配额资产管理,渲染 /carbon-asset/asset/list,标题正确、内容非空、无 console 报错,crumb=碳配额资产管理 文本=311字 错误=0,PASS,截图 page-carbon-asset_asset_list.png
+TC-RENDER-14,碳资产管理,信用资产管理,渲染 /carbon-asset/ccer/list,标题正确、内容非空、无 console 报错,crumb=信用资产管理 文本=190字 错误=0,PASS,截图 page-carbon-asset_ccer_list.png
+TC-RENDER-15,碳资产管理,交易管理,渲染 /carbon-asset/trade/list,标题正确、内容非空、无 console 报错,crumb=交易管理 文本=324字 错误=0,PASS,截图 page-carbon-asset_trade_list.png
+TC-RENDER-16,碳核查支撑,原始凭证管理,渲染 /carbon-verify/evidence/list,标题正确、内容非空、无 console 报错,crumb=原始凭证管理 文本=323字 错误=0,PASS,截图 page-carbon-verify_evidence_list.png
+TC-RENDER-17,碳核查支撑,第三方报告管理,渲染 /carbon-verify/report/list,标题正确、内容非空、无 console 报错,crumb=第三方报告管理 文本=355字 错误=0,PASS,截图 page-carbon-verify_report_list.png
+TC-RENDER-18,报告查询,碳排放报告,渲染 /carbon-report/calculation-report/query,标题正确、内容非空、无 console 报错,crumb=碳排放报告 文本=602字 错误=0,PASS,截图 page-carbon-report_calculation-report_query.png
+TC-RENDER-19,报告查询,能源利用报告,渲染 /carbon-report/energy-utilization-report/query,标题正确、内容非空、无 console 报错,crumb=能源利用报告 文本=543字 错误=0,PASS,截图 page-carbon-report_energy-utilization-report_query.png
+TC-RENDER-20,报告查询,产品碳足迹报告,渲染 /carbon-report/product-footprint-report/query,标题正确、内容非空、无 console 报错,crumb=产品碳足迹报告 文本=601字 错误=0,PASS,截图 page-carbon-report_product-footprint-report_query.png
+TC-RENDER-21,能碳分析,能耗查询,渲染 /carbon-analysis/energy-consumption-query/index,标题正确、内容非空、无 console 报错,crumb=能耗查询 文本=415字 错误=0,PASS,截图 page-carbon-analysis_energy-consumption-query_index.png
+TC-RENDER-22,能碳分析,能源消费分析与策略推荐,渲染 /carbon-analysis/energy-strategy-recommend/index,标题正确、内容非空、无 console 报错,crumb=能源消费分析与策略推荐 文本=329字 错误=0,PASS,截图 page-carbon-analysis_energy-strategy-recommend_index.png
+TC-RENDER-23,能碳分析,能效对标,渲染 /carbon-analysis/energy-efficiency-benchmarking/index,标题正确、内容非空、无 console 报错,crumb=能效对标 文本=542字 错误=0,PASS,截图 page-carbon-analysis_energy-efficiency-benchmarking_index.png
+TC-RENDER-24,能碳分析,碳排放查询,渲染 /carbon-analysis/energy-usage-management/index,标题正确、内容非空、无 console 报错,crumb=碳排放查询 文本=464字 错误=0,PASS,截图 page-carbon-analysis_energy-usage-management_index.png
+TC-RENDER-25,能碳分析,碳配额核算,渲染 /carbon-analysis/carbon-quota-calculation/index,标题正确、内容非空、无 console 报错,crumb=碳配额核算 文本=737字 错误=0,PASS,截图 page-carbon-analysis_carbon-quota-calculation_index.png
+TC-RENDER-26,能碳分析,能流分析,渲染 /carbon-analysis/energy-structure-analysis/index,标题正确、内容非空、无 console 报错,crumb=能流分析 文本=405字 错误=0,PASS,截图 page-carbon-analysis_energy-structure-analysis_index.png
+TC-RENDER-27,设备设施,设施管理,渲染 /carbon-facility/facility/list,标题正确、内容非空、无 console 报错,crumb=设施管理 文本=320字 错误=0,PASS,截图 page-carbon-facility_facility_list.png
+TC-RENDER-28,设备设施,设备管理,渲染 /carbon-facility/device/list,标题正确、内容非空、无 console 报错,crumb=设备管理 文本=519字 错误=0,PASS,截图 page-carbon-facility_device_list.png
+TC-RENDER-29,设备设施,设备数据,渲染 /carbon-facility/device-data/list,标题正确、内容非空、无 console 报错,crumb=设备数据 文本=749字 错误=0,PASS,截图 page-carbon-facility_device-data_list.png
+TC-RENDER-30,预警管理,事件预警,渲染 /common-warning/event/list,标题正确、内容非空、无 console 报错,crumb=事件预警 文本=196字 错误=0,PASS,截图 page-common-warning_event_list.png
+TC-RENDER-31,预警管理,预警设置,渲染 /common-warning/setting/list,标题正确、内容非空、无 console 报错,crumb=预警设置 文本=265字 错误=0,PASS,截图 page-common-warning_setting_list.png
+TC-RENDER-32,预警管理,预警记录,渲染 /common-warning/record/list,标题正确、内容非空、无 console 报错,crumb=预警记录 文本=465字 错误=0,PASS,截图 page-common-warning_record_list.png
+TC-RENDER-33,节能管理,节能改造项目,渲染 /carbon-economize/renovation-project/list,标题正确、内容非空、无 console 报错,crumb=节能改造项目 文本=308字 错误=0,PASS,截图 page-carbon-economize_renovation-project_list.png
+TC-RENDER-34,节能管理,能源管理情况,渲染 /carbon-economize/management-situation/list,标题正确、内容非空、无 console 报错,crumb=能源管理情况 文本=322字 错误=0,PASS,截图 page-carbon-economize_management-situation_list.png
+TC-RENDER-35,系统管理,账号管理,渲染 /system/users,标题正确、内容非空、无 console 报错,crumb=账号管理 文本=456字 错误=0,PASS,截图 page-system_users.png
+TC-RENDER-36,系统管理,角色管理,渲染 /system/roles,标题正确、内容非空、无 console 报错,crumb=角色管理 文本=176字 错误=0,PASS,截图 page-system_roles.png
+TC-RENDER-37,系统管理,租户信息,渲染 /system/tenant,标题正确、内容非空、无 console 报错,crumb=租户信息 文本=181字 错误=0,PASS,截图 page-system_tenant.png
+TC-RENDER-38,系统管理,审计日志,渲染 /system/audit,标题正确、内容非空、无 console 报错,crumb=审计日志 文本=1457字 错误=0,PASS,截图 page-system_audit.png
+TC-RENDER-39,平台管理,平台概览,渲染 /platform/overview,标题正确、内容非空、无 console 报错,crumb=无权访问 文本=36字 错误=0 [租户管理员无权访问→符合设计],PASS,截图 page-platform_overview.png
+TC-RENDER-40,平台管理,租户管理,渲染 /platform/tenants,标题正确、内容非空、无 console 报错,crumb=无权访问 文本=36字 错误=0 [租户管理员无权访问→符合设计],PASS,截图 page-platform_tenants.png
+TC-RENDER-41,平台管理,平台审计,渲染 /platform/audit,标题正确、内容非空、无 console 报错,crumb=无权访问 文本=36字 错误=0 [租户管理员无权访问→符合设计],PASS,截图 page-platform_audit.png
+TC-RENDER-SUM,全页面,全部,41 个菜单入口渲染汇总,全部渲染成功,成功 41 / 失败 0,PASS,
+TC-STATE-01,预算管理,碳排放配额,配额列表有数据行,>=1 行,1 行,PASS,
+TC-STATE-02,核算,碳排放核算,核算期状态徽标展示,含草稿/已计算等中文徽标,徽标=[草稿],PASS,
+TC-STATE-03,产值管理,产品列表,搜索无结果展示空态,显示空态提示,"空态=""暂无数据 可点击右上角新建""",PASS,
+TC-STATE-04,首页,首页,KPI 数字带千分位或小数位,存在格式化数字,已格式化,PASS,
+TC-STATE-05,能碳分析,能流分析,桑基图渲染节点与流向带,svg 存在且节点>=3、流向带>=1,svg=1 节点=15 流向带=10,PASS,
+TC-STATE-06,能碳分析,能流分析,桑基图悬停显示数值 tooltip,tooltip 显示流向与占比,"show=true ""总能耗 → 外购电力 39.86 tce · 占比 51.54%""",PASS,
+TC-STATE-07,设备设施,设备数据,列表翻页（第 2 页）数据变化且无报错,首行内容变化、无 console 报错,可翻页=true 首行变化=true 新增错误=0,PASS,
+TC-DEEP-01,路由,/carbon-product/product/list,深链接直达并刷新 /carbon-product/product/list,首次与刷新后均为目标页且有内容,首次=产品列表/490字 刷新=产品列表/490字,PASS,
+TC-DEEP-02,路由,/carbon-asset/trade/list,深链接直达并刷新 /carbon-asset/trade/list,首次与刷新后均为目标页且有内容,首次=交易管理/324字 刷新=交易管理/324字,PASS,
+TC-DEEP-03,路由,/carbon-verify/evidence/list,深链接直达并刷新 /carbon-verify/evidence/list,首次与刷新后均为目标页且有内容,首次=原始凭证管理/323字 刷新=原始凭证管理/323字,PASS,
+TC-DEEP-04,路由,/carbon-report/calculation-report/query,深链接直达并刷新 /carbon-report/calculation-report/query,首次与刷新后均为目标页且有内容,首次=碳排放报告/602字 刷新=碳排放报告/602字,PASS,
+TC-ROUTE-01,路由,/no-such-page-uat,未知路由回退（404 或首页）,不白屏，回退到 404 页或首页,crumb=首页 内容=430字 404页=false hash=#/no-such-page-uat,PASS,当前为回退首页内容但保留非法 hash（未做地址栏纠正），建议 P3 优化
+TC-ROUTE-02,路由,导航,浏览器后退/前进回到正确页面,后退两次到 产品列表→碳配额资产，前进回 原始凭证,后退1=碳配额资产管理 后退2=产品列表 前进=碳配额资产管理,PASS,
+TC-AUTH-01,鉴权,未登录直链,未登录直链渲染登录框（不泄露页面）,登录遮罩可见且 hash 保持,遮罩可见=1 hash=#/carbon-computation/calculation-complete/list,PASS,
+TC-AUTH-02,鉴权,未登录直链,登录后回跳到原目标页,hash 与页面均停留在原目标页,hash=#/carbon-computation/calculation-complete/list crumb=碳排放核算 内容=248字,PASS,
+TC-PERM-01,权限,平台超管,平台账号菜单只含平台三项,3 项且不含业务菜单,"菜单=[平台概览,租户管理,平台审计]",PASS,
+TC-PERM-02,权限,平台超管,平台账号访问租户业务页被拦,显示无权访问,crumb=无权访问,PASS,
+TC-RENDER-PLAToverview,平台管理,/platform/overview,平台账号渲染 /platform/overview,平台概览 且内容非空,crumb=平台概览 内容=561字,PASS,
+TC-RENDER-PLATtenants,平台管理,/platform/tenants,平台账号渲染 /platform/tenants,租户管理 且内容非空,crumb=租户管理 内容=555字,PASS,
+TC-RENDER-PLATaudit,平台管理,/platform/audit,平台账号渲染 /platform/audit,平台审计 且内容非空,crumb=平台审计 内容=493字,PASS,
+TC-PERM-03,权限,受限角色,受限角色侧栏仅显示已授权页面,仅首页+产品列表,"菜单=[首页,产品列表]",PASS,
+TC-PERM-04,权限,受限角色,受限角色直链访问未授权页面被 403,弹「无权访问」,全部拦截=true,PASS,
+TC-PERM-05,权限,受限角色,受限角色访问系统管理被拦,无权访问,crumb=无权访问,PASS,
+TC-PERM-06,权限,集团汇总,group.overview 特权页访问控制,无授权→无权访问；有授权→展示集团数据,crumb=集团汇总 内容含集团=true,PASS,默认运营角色不含该页面，应按 403 处理
+TC-FORM-01,表单校验,产品列表,点击「新建」打开表单弹窗,弹窗出现,弹窗数=1,PASS,
+TC-FORM-02,表单校验,产品列表,空表单提交触发必填校验,出现必填错误提示,"提示=[产品名称产品名称 必填 / 产品名称 必填 / 单位吨千吨万吨克千克个万个件万件箱
+      请选择
+      吨✓千吨✓万吨✓克✓千克✓个✓万个✓件✓万件✓箱✓
+      
+    单位 必填 / 单位 必填]",PASS,
+TC-FORM-03,表单校验,产品列表,名称输入 130 字时的长度约束,被 maxlength 截断或提交报错,实际长度=120,PASS,前端已截断
+TC-UI-XSS-01,安全,产品列表,XSS 载荷在列表按文本渲染（不注入 <img>）,无 img 注入且原文以文本显示,注入 img=0 原文可见=true,PASS,
+TC-UI-CONFIRM-01,交互,产品列表,删除需二次确认且取消不生效,出现确认弹窗，取消后数据仍在,确认文案=true 取消后行数=6,PASS,
+TC-UI-DEBOUNCE-01,交互,碳排放核算,计算按钮连点只触发一次请求,只发出 1 个 POST,实际发出 1 个,PASS,
+TC-STATE-08,核算,碳排放核算,锁定期间列表展示「已锁定」徽标,出现已锁定徽标,"行=""2026-11 AC-2026-11 已锁定 177.7 tCO₂e 48.8 tce GB/T 32151.9-2024 工业其他行业 GB/T 32151.""",PASS,
+TC-STATE-09,核算,碳排放核算,锁定期间写操作按钮不再提供（仅查看/解锁）,无计算/提交/编辑按钮,"按钮=[查看,解锁] 写按钮=0",PASS,服务端另有 409 兜底，见 TC-ST-11
+TC-STATE-10,核算,碳排放核算,同会话内状态变更后的列表一致性,列表反映最新状态（已锁定）,旧会话列表仍显示=旧状态,FAIL,数据源为登录时 bootstrap 快照，跨会话变更需手动「刷新」后才同步（P3）
+TC-EXC-01,异常,产品列表,接口失败时给出可见错误提示,出现网络异常提示,"toast=""网络异常，请检查网络连接后重试""",PASS,
+TC-EXC-02,异常,碳排放配额,接口 500 时页面不白屏且有提示,有 toast 或错误占位,"toast=""网络异常，请检查网络连接后重试"" 正文=""碳排放配额 年度配额分配、履约进度与下年度预测量 年度 查询 重置 新建 批量删""",PASS,
+TC-EXC-03,鉴权,全局,token 失效后回到登录页,登录遮罩可见,遮罩=1,PASS,
