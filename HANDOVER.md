@@ -11,7 +11,7 @@ carbonbal-1.0.1/
 ├─ VERSION                      版本号
 ├─ MANIFEST.txt                 打包信息（版本/日期/文件数）
 ├─ SHA256SUMS                   逐文件校验和
-├─ carbonbal-web/                     前端源码（唯一源码目录）
+├─ carbonbal-web/               前端源码（唯一源码目录）
 │  ├─ index.html
 │  ├─ assets/                   JS/CSS（无框架、零构建）
 │  ├─ docs/                     需求卡、字段口径、前端发布约束
