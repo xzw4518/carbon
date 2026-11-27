@@ -1351,6 +1351,9 @@
             <span class="small muted right">已选 ${sel.size} 项</span></div>
             <div class="table-wrap"><table class="tb"><thead><tr>
               <th style="width:34px"><input type="checkbox" data-d-all></th>
+              <!-- TODO(v1.1 单一来源)：本表列定义与后端 DeviceDtos/设备导出表头是两处维护，
+                   跨语言（JS ↔ Java）统一需要构建期代码生成，本轮不改；改动任一侧必须同步另一侧。
+                   权威定义：platform/backend/src/main/java/com/carbonbal/device/DeviceDtos.java -->
               <th>设备名称</th><th>设备编码</th><th>备注</th><th>企业</th><th>设备类型</th>
               <th>计量级别</th><th>能源种类</th><th>禁用状态</th><th style="width:170px">操作</th></tr></thead>
               <tbody>${list.length ? list.map(d => `<tr data-dev="${d.id}" style="cursor:pointer">
