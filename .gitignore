@@ -35,3 +35,6 @@ Thumbs.db
 
 # 分享/导出临时产物
 .trae-html-share-packages/
+
+# 门禁趋势日志（每次 gate 运行追加，属生成物）
+自研原型/docs/verification/gate_history.jsonl
