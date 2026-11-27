@@ -1,0 +1,194 @@
+{
+  "ok": true,
+  "root": "D:\\能碳12\\platform\\backend",
+  "profiled_at": "2026-11-27T00:55:41Z",
+  "project_name": "backend",
+  "project_type": "后端服务/接口",
+  "readme_file": "",
+  "readme_summary": "",
+  "manifests": [
+    {
+      "file": "pom.xml",
+      "name": "",
+      "description": "",
+      "scripts": [],
+      "dependency_count": null
+    }
+  ],
+  "key_documents": [],
+  "ci_systems": [],
+  "entry_points": [],
+  "docker_files": [],
+  "test_dirs": [],
+  "has_bdd_features": false,
+  "has_notebooks": false,
+  "top_level_layout": [
+    "backup/",
+    "data/",
+    "logs/",
+    "pom.xml",
+    "src/",
+    "tools/"
+  ],
+  "goal_hints": [],
+  "test_type_matrix": {
+    "summary": {
+      "total": 20,
+      "present": 6,
+      "not_found": 12,
+      "unverified": 2
+    },
+    "types": [
+      {
+        "type": "单元测试",
+        "category": "功能层次",
+        "status": "present",
+        "evidence": [
+          "目录 test/"
+        ]
+      },
+      {
+        "type": "集成测试",
+        "category": "功能层次",
+        "status": "present",
+        "evidence": [
+          "依赖声明「spring-boot-starter-test」"
+        ]
+      },
+      {
+        "type": "契约测试",
+        "category": "功能层次",
+        "status": "not_found",
+        "evidence": []
+      },
+      {
+        "type": "系统/端到端",
+        "category": "功能层次",
+        "status": "present",
+        "evidence": [
+          "文件名含「e2e」"
+        ]
+      },
+      {
+        "type": "验收 UAT",
+        "category": "功能层次",
+        "status": "not_found",
+        "evidence": []
+      },
+      {
+        "type": "冒烟测试",
+        "category": "功能保障",
+        "status": "present",
+        "evidence": [
+          "文件名含「smoke」"
+        ]
+      },
+      {
+        "type": "回归测试",
+        "category": "功能保障",
+        "status": "not_found",
+        "evidence": []
+      },
+      {
+        "type": "接口 API 测试",
+        "category": "功能保障",
+        "status": "not_found",
+        "evidence": []
+      },
+      {
+        "type": "探索性测试",
+        "category": "功能保障",
+        "status": "unverified",
+        "evidence": []
+      },
+      {
+        "type": "性能测试",
+        "category": "非功能",
+        "status": "present",
+        "evidence": [
+          "文件名含词「perf」"
+        ]
+      },
+      {
+        "type": "安全测试",
+        "category": "非功能",
+        "status": "not_found",
+        "evidence": []
+      },
+      {
+        "type": "兼容性测试",
+        "category": "非功能",
+        "status": "not_found",
+        "evidence": []
+      },
+      {
+        "type": "可用性测试",
+        "category": "非功能",
+        "status": "unverified",
+        "evidence": []
+      },
+      {
+        "type": "无障碍测试",
+        "category": "非功能",
+        "status": "not_found",
+        "evidence": []
+      },
+      {
+        "type": "可靠性测试",
+        "category": "非功能",
+        "status": "not_found",
+        "evidence": []
+      },
+      {
+        "type": "测试覆盖率",
+        "category": "度量与流程",
+        "status": "not_found",
+        "evidence": []
+      },
+      {
+        "type": "变异测试",
+        "category": "度量与流程",
+        "status": "present",
+        "evidence": [
+          "文件名含「pitest」"
+        ]
+      },
+      {
+        "type": "QA 流程",
+        "category": "度量与流程",
+        "status": "not_found",
+        "evidence": []
+      },
+      {
+        "type": "质量指标",
+        "category": "度量与流程",
+        "status": "not_found",
+        "evidence": []
+      },
+      {
+        "type": "代码审查与整洁度",
+        "category": "度量与流程",
+        "status": "not_found",
+        "evidence": []
+      }
+    ],
+    "note": "not_found 仅代表本次只读扫描未发现对应资产，不等于项目没有做该类测试；涉及「是否真的测过」须结合执行结果与人工确认，不得据 not_found 直接判定「未做」。"
+  },
+  "missing_key_files": [
+    "README（未找到任何 README.* 文件）",
+    "测试目录（tests/ features/ 等均未找到——这是「未找到」而非「不存在」，需人工确认命名规则）",
+    "CI 配置（.github/workflows / .gitlab-ci.yml 等均未找到）",
+    "质量相关文档（CONTRIBUTING / TESTING / SECURITY 等均未找到）"
+  ],
+  "to_verify": [
+    "README 未给出可读的项目说明，项目定位需向用户确认",
+    "缺失关键信息：README（未找到任何 README.* 文件）",
+    "缺失关键信息：测试目录（tests/ features/ 等均未找到——这是「未找到」而非「不存在」，需人工确认命名规则）",
+    "缺失关键信息：CI 配置（.github/workflows / .gitlab-ci.yml 等均未找到）",
+    "缺失关键信息：质量相关文档（CONTRIBUTING / TESTING / SECURITY 等均未找到）"
+  ],
+  "notes": [
+    "未找到 README——这表示「未找到」，不代表项目没有说明文档",
+    "本画像为只读推断结果，涉及「项目意图」的判断须与用户确认后再作为测试依据"
+  ]
+}

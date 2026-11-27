@@ -1,0 +1,14 @@
+{
+  "name": "carbonbal-web",
+  "version": "1.0.1",
+  "private": true,
+  "description": "能碳管理平台前端（正式前端，随 Spring Boot 发布）",
+  "scripts": {
+    "gate": "node tools/gate-l0.cjs",
+    "gate:ui": "node tools/check-ui.cjs",
+    "gate:all": "node tools/gate-l0.cjs && node tools/check-ui.cjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.49.1"
+  }
+}

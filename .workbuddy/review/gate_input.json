@@ -1,0 +1,71 @@
+{
+  "required_dimensions": [
+    "单元·组件级",
+    "集成·接口级",
+    "系统·验收级",
+    "测试保障级",
+    "性能·可靠性",
+    "安全",
+    "兼容·体验",
+    "流程·度量·代码"
+  ],
+  "excluded_dimensions": [],
+  "findings": [
+    {
+      "dimension": "单元·组件级",
+      "member": "苏雅",
+      "verdict": "不通过",
+      "severity": "阻断",
+      "evidence": "ApiTestSupport.cleanupTestTenants 的跨租户 DELETE 无 profile 守卫，prod profile 下可删除真实租户；H2 上语法错误被 catch 吞掉，24 个套件清理全部失败"
+    },
+    {
+      "dimension": "集成·接口级",
+      "member": "柯砚",
+      "verdict": "不通过",
+      "severity": "高",
+      "evidence": "集团汇总对同集团兄弟企业数据越权读取；幂等过滤器对 multipart/>256KB 直接放行；解锁自审批；无契约测试"
+    },
+    {
+      "dimension": "系统·验收级",
+      "member": "白樾",
+      "verdict": "不通过",
+      "severity": "高",
+      "evidence": "e2e 长期 100/102 仍作验收基线；UI 未覆盖复核/批准/锁定；无 UAT/BDD；操作员复核入口回归未被门禁覆盖"
+    },
+    {
+      "dimension": "测试保障级",
+      "member": "闻朔",
+      "verdict": "不通过",
+      "severity": "高",
+      "evidence": "smoke.sh 未适配图形验证码，9 项冒烟无法跑通；回归无 CI/无编排；探索性无记录；同因缺陷在问题库与门禁中复发"
+    },
+    {
+      "dimension": "性能·可靠性",
+      "member": "骆骋",
+      "verdict": "不通过",
+      "severity": "高",
+      "evidence": "bootstrap 全量 selectList 载入 report.content BLOB；核算长事务与内存聚合；无压测/长稳/故障注入；任务无多实例锁"
+    },
+    {
+      "dimension": "安全",
+      "member": "关屿",
+      "verdict": "不通过",
+      "severity": "阻断",
+      "evidence": "dev/demo 默认 JWT 密钥公开且强校验黑名单未覆盖；XFF 可伪造绕过登录锁定；pages 缺失按 * 放行；SVG/提示框未转义"
+    },
+    {
+      "dimension": "兼容·体验",
+      "member": "阮清",
+      "verdict": "不通过",
+      "severity": "中",
+      "evidence": "仅 Chrome 四视口；无 axe/Lighthouse 无障碍扫描；错误/无权限仍仅 toast；无真机与跨浏览器矩阵"
+    },
+    {
+      "dimension": "流程·度量·代码",
+      "member": "何序",
+      "verdict": "不通过",
+      "severity": "阻断",
+      "evidence": "dist/carbonbal-1.0.1.zip 为 11-25 旧包（Flyway 105/23 迁移/13 测试类），与当前源码 32 迁移/26 测试类不同源，且缺 functional-cases.py/run-prod.sh；无 git/CI/覆盖率"
+    }
+  ]
+}

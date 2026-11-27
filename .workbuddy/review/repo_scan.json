@@ -1,0 +1,61 @@
+{
+  "ok": true,
+  "root": "D:\\能碳12",
+  "scanned_at": "2026-11-27T00:55:27Z",
+  "total_files": 620,
+  "source_files": 290,
+  "other_files": 330,
+  "truncated": false,
+  "max_files": 3000,
+  "languages": {
+    "Java": 209,
+    "SQL": 38,
+    "Shell": 21,
+    "JavaScript": 20,
+    "Python": 2
+  },
+  "primary_language": "Java",
+  "test_frameworks": [],
+  "test_files": [
+    "platform/backend/src/test/java/com/carbonbal/AccountingFlowTest.java",
+    "platform/backend/src/test/java/com/carbonbal/AnalysisFilterTest.java",
+    "platform/backend/src/test/java/com/carbonbal/AnalysisReportTest.java",
+    "platform/backend/src/test/java/com/carbonbal/ApiTestSupport.java",
+    "platform/backend/src/test/java/com/carbonbal/AuditApiTest.java",
+    "platform/backend/src/test/java/com/carbonbal/AuthLockoutTest.java",
+    "platform/backend/src/test/java/com/carbonbal/BootstrapTest.java",
+    "platform/backend/src/test/java/com/carbonbal/CsvTest.java",
+    "platform/backend/src/test/java/com/carbonbal/DataGuardTest.java",
+    "platform/backend/src/test/java/com/carbonbal/DetailApiTest.java",
+    "platform/backend/src/test/java/com/carbonbal/DeviceQuotaJobTest.java",
+    "platform/backend/src/test/java/com/carbonbal/ExportTest.java",
+    "platform/backend/src/test/java/com/carbonbal/FacilityTest.java",
+    "platform/backend/src/test/java/com/carbonbal/IdempotencyTest.java",
+    "platform/backend/src/test/java/com/carbonbal/LogoutTest.java",
+    "platform/backend/src/test/java/com/carbonbal/OutputEvidenceTest.java",
+    "platform/backend/src/test/java/com/carbonbal/PageGateTest.java",
+    "platform/backend/src/test/java/com/carbonbal/PdfLayoutTest.java",
+    "platform/backend/src/test/java/com/carbonbal/PlatformDomainTest.java",
+    "platform/backend/src/test/java/com/carbonbal/PlatformOverviewTest.java",
+    "platform/backend/src/test/java/com/carbonbal/ReadingApiTest.java",
+    "platform/backend/src/test/java/com/carbonbal/RoleApiTest.java",
+    "platform/backend/src/test/java/com/carbonbal/SessionTenantTest.java",
+    "platform/backend/src/test/java/com/carbonbal/SupplierTreeTest.java",
+    "platform/backend/src/test/java/com/carbonbal/TenantIsolationTest.java",
+    "platform/backend/src/test/java/com/carbonbal/TenantLicenseTest.java",
+    "platform/backend/src/test/java/com/carbonbal/UserIdentityTest.java"
+  ],
+  "test_file_count": 27,
+  "feature_files": [],
+  "gherkin_step_dirs": [],
+  "dependency_files": [
+    "platform/backend/pom.xml",
+    "自研原型/package.json"
+  ],
+  "ci_systems": [],
+  "coverage_configs": [],
+  "process_documents": [],
+  "notes": [
+    "未发现 .feature 文件，无法判断项目是否采用 Gherkin/BDD"
+  ]
+}

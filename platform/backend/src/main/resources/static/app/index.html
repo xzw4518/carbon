@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A2A22">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230F7A5A'/%3E%3Cpath d='M8 24c0-9 6-15 17-16 0 11-6 17-13 17' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>能碳管理平台</title>
+<link rel="stylesheet" href="assets/app.css">
+<style>
+  .platform:not(.authed) .app{visibility:hidden}
+  .auth-mask{position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+    background:linear-gradient(155deg,#0A2A22 0%,#0F4C3A 55%,#0F7A5A 100%)}
+  .auth-mask.hide{display:none}
+  .auth-card{width:372px;background:#fff;border-radius:16px;padding:28px 28px 22px;
+    box-shadow:0 24px 60px -24px rgba(0,0,0,.55)}
+  .auth-brand{font-size:22px;font-weight:700;letter-spacing:.01em;color:#0A2A22}
+  .auth-brand span{font-size:12px;font-weight:500;color:#94A3B8;letter-spacing:.14em;margin-left:8px}
+  .auth-sub{margin:6px 0 20px;font-size:13px;color:#64748B}
+  .auth-field{display:flex;flex-direction:column;gap:6px;margin-bottom:13px}
+  .auth-field label{font-size:13px;color:#475569}
+  .auth-field input{height:40px;padding:0 12px;border:1px solid #CBD5D0;border-radius:9px;font:inherit;font-size:14px;outline:none}
+  .auth-field input:focus{border-color:#12A374;box-shadow:0 0 0 3px rgba(18,163,116,.14)}
+  .auth-btn{width:100%;height:40px;border:0;border-radius:9px;background:#0F7A5A;color:#fff;
+    font:inherit;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px}
+  .auth-btn:disabled{opacity:.6;cursor:not-allowed}
+  .auth-err{min-height:18px;margin-top:8px;font-size:13px;color:#B42318}
+  .auth-tip{margin-top:10px;font-size:12.5px;line-height:1.7;color:#94A3B8}
+  .auth-tabs{display:flex;gap:6px;background:#F1F5F3;border-radius:10px;padding:4px;margin-bottom:16px}
+  .auth-tabs button{flex:1;height:32px;border:0;border-radius:7px;background:transparent;font:inherit;font-size:13px;
+    color:#475569;cursor:pointer}
+  .auth-tabs button.on{background:#fff;color:#0F7A5A;font-weight:600;box-shadow:0 1px 4px rgba(15,76,58,.12)}
+  .auth-inline{display:flex;gap:8px;align-items:center}
+  .auth-inline input{flex:1;min-width:0}
+  .auth-send{height:40px;padding:0 12px;border:1px solid #CBD5D0;border-radius:9px;background:#fff;
+    font:inherit;font-size:13px;color:#0F7A5A;cursor:pointer;white-space:nowrap}
+  .auth-send:disabled{color:#94A3B8;cursor:not-allowed}
+  .auth-inline img{height:40px;width:112px;border:1px solid #CBD5D0;border-radius:9px;cursor:pointer;background:#f4f7f6}
+  .tenant-card{width:372px;background:#fff;border-radius:16px;padding:26px 28px;box-shadow:0 24px 60px -24px rgba(0,0,0,.55)}
+  .tenant-card.hide{display:none}
+  .tenant-list{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+  .tenant-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;
+    border:1px solid #E2E8E5;border-radius:10px;cursor:pointer;background:#fff}
+  .tenant-item:hover{border-color:#12A374;background:#F6FBF8}
+  .tenant-item b{font-size:14px;color:#0A2A22}
+  .tenant-item span{font-size:12px;color:#64748B}
+  @media (max-width:520px){
+    .auth-card,.tenant-card{width:92vw;padding:22px 18px;border-radius:14px}
+    .auth-brand{font-size:20px}
+    .auth-field input,.auth-send{height:44px}
+    .auth-btn{height:46px;font-size:15px}
+    .auth-inline img{height:44px;width:104px}
+    .auth-tip{font-size:11.5px}
+    .auth-card .auth-field label{font-size:13.5px}
+  }
+</style>
+</head>
+<body>
+
+<div class="auth-mask hide" id="auth-mask">
+  <div class="auth-card">
+    <div class="auth-brand">能碳管理平台</div>
+    <div class="auth-sub">企业账号登录</div>
+    <div class="auth-tabs" id="auth-tabs">
+      <button data-auth-tab="pwd" class="on">密码登录</button>
+      <button data-auth-tab="sms">验证码登录</button>
+    </div>
+    <div class="auth-field"><label>手机号</label>
+      <input id="auth-phone" maxlength="11" inputmode="numeric" autocomplete="tel" placeholder="请输入手机号"></div>
+    <div class="auth-field" id="auth-pwd-field"><label>密码</label>
+      <input id="auth-pwd" type="password" autocomplete="current-password" placeholder="请输入密码"></div>
+    <div class="auth-field hide" id="auth-sms-field"><label>短信验证码</label>
+      <div class="auth-inline">
+        <input id="auth-code" maxlength="6" inputmode="numeric" placeholder="6 位数字">
+        <button class="auth-send" id="auth-send" type="button">获取验证码</button>
+      </div></div>
+    <div class="auth-field hide" id="auth-cap-field"><label>图形验证码</label>
+      <div class="auth-inline">
+        <input id="auth-cap" maxlength="4" placeholder="右侧字符">
+        <img id="auth-cap-img" alt="图形验证码" title="点击刷新">
+      </div></div>
+    <button class="auth-btn" id="auth-login">登录</button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+  <div class="tenant-card hide" id="tenant-card">
+    <div class="auth-brand" style="font-size:18px">选择企业</div>
+    <div class="auth-sub" id="tenant-sub">该手机号属于多家企业，请选择本次进入的企业</div>
+    <div class="tenant-list" id="tenant-list"></div>
+  </div>
+</div>
+
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 19c0-7 5-12 14-13 0 9-5 14-11 14"/><path d="M5 19c3-4 6-6 9-7"/>
+        </svg>
+      </div>
+      <div><div class="brand-name">能碳管理平台</div><div class="brand-sub">ENERGY &amp; CARBON</div></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="nav-foot">
+      <div id="side-org"></div>
+      <div id="side-mode" style="margin-top:2px"></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <button class="icon-btn mobile-btn" id="btn-menu" aria-label="打开菜单">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <button class="icon-btn desktop-only" id="btn-collapse" aria-label="折叠菜单" title="折叠菜单">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h16"/><path d="m17 9 3 3-3 3"/></svg>
+      </button>
+      <button class="icon-btn desktop-only" id="btn-home" aria-label="首页" title="首页">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m4 11 8-7 8 7"/><path d="M6 10v9h12v-9"/></svg>
+      </button>
+      <div class="crumb"><span id="crumb-group"></span><span id="crumb-sep" class="hide-sm">/</span><b id="crumb-title">首页</b></div>
+      <div class="top-search" role="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+        <input id="global-search" placeholder="搜索页面（如 配额 / 报告）" aria-label="全局搜索">
+      </div>
+      <button class="icon-btn" id="btn-bell" aria-label="通知">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 16V11a6 6 0 0 1 12 0v5"/><path d="M4 16h16"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>
+        <span class="dot"></span>
+      </button>
+      <button class="icon-btn" id="btn-settings" aria-label="网站设置" title="网站设置">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 13.7H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 3.1V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+      <div class="avatar" id="avatar" title="账号" style="cursor:pointer">·</div>
+      <div class="user-menu" id="user-menu">
+        <div class="um-head"><b>陈立</b><div class="small muted">华东精密制造有限公司</div></div>
+        <div class="um-item" id="um-switch">切换企业</div>
+        <div class="um-item" id="um-rebind">换绑手机号</div>
+        <div class="um-item" id="um-pwd">修改密码</div>
+        <div class="um-item" id="um-logout">退出登录</div>
+      </div>
+    </header>
+    <div class="tags" id="tags" aria-label="已打开页面"></div>
+    <main id="view" aria-live="polite"></main>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="assertive"></div>
+
+<script>
+window.DB = {
+  org: {}, kpi: {},
+  monthly: [], todos: [], energyMix: [],
+  quota: { history: [], total: 0, used: 0, next: 0, year: new Date().getFullYear() },
+  accounting: [], accountingLines: [], products: [], prodValue: [], totalValue: [],
+  suppliers: [], footprint: [], assets: [], ccers: [], trades: [],
+  evidences: [], thirdReports: [], facilities: [], devices: [], deviceData: [],
+  alertRules: [], alertRecords: [], warningEvents: [], reports: [],
+  retrofits: [], energyMgmt: []
+};
+</script>
+<script src="assets/api-client.js"></script>
+<script src="assets/menu.js"></script>
+<script src="assets/framework.js"></script>
+<script src="assets/topbar.js"></script>
+<script>
+function initApp() {
+(function () {
+  const { $, $$, toast, modal, go } = UI;
+
+  // 1:1 渲染导航（名称/顺序/层级来自 MENU）
+  const nav = $('#nav');
+  const myPages = (UI.state && UI.state.pages) || ['*'];
+  const allPages = myPages.indexOf('*') >= 0;
+  const canSee = (code) => !code || allPages || myPages.indexOf(code) >= 0;
+  const visibleMenu = MENU
+    .filter(g => (!g.platform || (UI.state && UI.state.platformAdmin)) &&
+      (!g.adminOnly || (UI.state && UI.state.role === 'admin')))
+    .filter(g => (g.type === 'page' ? canSee(g.page)
+      : (g.children.length ? g.children.some(c => canSee(c.page)) : allPages)));
+  nav.innerHTML = visibleMenu.map(g => {
+    if (g.type === 'page') {
+      return `<div class="nav-group"><a class="nav-root" href="#${g.path}" data-s="${g.name.slice(0,1)}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M13.4 10.6 17 7"/><path d="M20.4 16a9 9 0 1 0-16.8 0"/></svg>
+        ${g.name}</a></div>`;
+    }
+    const kids = g.children.filter(c => canSee(c.page));
+    const items = kids.map(c => `<a href="#${c.path}" data-s="${c.name.slice(0,1)}">${c.name}</a>`).join('');
+    if (!g.children.length) {
+      return `<div class="nav-group"><div class="nav-title" style="cursor:default">${g.name}
+        <span class="caret" style="transform:rotate(-90deg)">▾</span></div></div>`;
+    }
+    return `<div class="nav-group">
+      <div class="nav-title" data-g="${g.name}" data-s="${g.name.slice(0,1)}">${g.name}<span class="caret">▾</span></div>
+      <div class="nav-items">${items}</div></div>`;
+  }).join('');
+
+  nav.querySelectorAll('[data-g]').forEach(t => t.onclick = () => t.closest('.nav-group').classList.toggle('collapsed'));
+
+  // 顶部交互
+  $('#btn-menu').onclick = () => $('#side').classList.toggle('open');
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 900 && !e.target.closest('#side') && !e.target.closest('#btn-menu')) $('#side').classList.remove('open');
+  });
+
+  const menu = $('#user-menu');
+  $('#avatar').onclick = (e) => { e.stopPropagation(); menu.classList.toggle('open'); };
+  document.addEventListener('click', (e) => { if (!e.target.closest('#user-menu') && !e.target.closest('#avatar')) menu.classList.remove('open'); });
+  $('#um-pwd').onclick = () => { menu.classList.remove('open'); UI.openPwd(); };
+
+  $('#btn-bell').onclick = () => {
+    const rows = (DB.alertRecords || []).slice(0, 6);
+    const item = (a, last) => `<div class="between" style="padding:8px 0${last ? '' : ';border-bottom:1px dashed var(--line)'}">
+      <div><div style="font-weight:600">${UI.esc(a.title || '预警')}</div><div class="small muted">${UI.esc(a.at || '')}${a.status === 'open' ? ' · 待处理' : ''}</div></div>
+      <button class="btn btn-sm" data-jump="/common-warning/record/list">查看</button></div>`;
+    modal({
+      title: '预警通知', width: 460,
+      body: rows.length ? `<div class="stack">${rows.map((a, i) => item(a, i === rows.length - 1)).join('')}</div>`
+        : `<div class="tb-empty" style="padding:28px 12px">${UI.icon('bell')}<div>暂无预警记录</div></div>`,
+      foot: `<button class="btn" data-close>关闭</button>`
+    });
+    setTimeout(() => {
+      $$('.overlay [data-jump]').forEach(b => b.onclick = () => {
+        document.querySelectorAll('.overlay').forEach(o => o.remove());
+        document.body.style.overflow = '';
+        go(b.dataset.jump);
+      });
+    }, 30);
+  };
+
+  const index = [];
+  MENU.forEach(g => g.type === 'page' ? index.push(g) : g.children.forEach(c => index.push(c)));
+  $('#global-search').onkeydown = (e) => {
+    if (e.key !== 'Enter') return;
+    const v = e.target.value.trim();
+    if (!v) return;
+    const hit = index.find(p => p.name.includes(v));
+    if (!hit) { toast('warn', '未找到匹配页面', '试试：配额 / 报告 / 设备 / 预警'); return; }
+    go(hit.path); toast('ok', '已跳转', hit.name);
+  };
+
+  if (!location.hash) location.hash = '#/home';
+  // 面包屑分隔符：无分组时隐藏
+  const obs = setInterval(() => {
+    const g = $('#crumb-group').textContent;
+    $('#crumb-sep').style.display = g ? '' : 'none';
+    if (g) clearInterval(obs);
+  }, 200);
+
+  UI.render();
+})();
+}
+</script>
+<script>
+(function () {
+  const load = src => new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('加载失败：' + src));
+    document.body.appendChild(s);
+  });
+  (async function boot() {
+    if (window.CarbonAPI) await CarbonAPI.authenticate();
+    await load('assets/pages-core.js');
+    await load('assets/pages-generic.js');
+    await load('assets/pages-system.js');
+    await load('assets/pages-platform.js');
+    await load('assets/pages-group.js');
+    await load('assets/account.js');
+    initApp();
+  })().catch(e => {
+    console.error(e);
+    document.body.insertAdjacentHTML('beforeend',
+      '<pre style="position:fixed;left:12px;bottom:12px;z-index:999;background:#fff;padding:10px;border:1px solid #ddd">' + e.message + '</pre>');
+  });
+})();
+</script>
+</body>
+</html>

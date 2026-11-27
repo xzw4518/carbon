@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.5</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>com.carbonbal</groupId>
+  <artifactId>carbonbal-backend</artifactId>
+  <version>1.0.0</version>
+  <name>carbonbal-backend</name>
+  <description>能碳管理平台 · 设备数据到核算报告的服务端</description>
+
+  <properties>
+    <java.version>17</java.version>
+    <mybatis-plus.version>3.5.6</mybatis-plus.version>
+    <jjwt.version>0.12.5</jjwt.version>
+    <openpdf.version>1.3.30</openpdf.version>
+    <jacoco.version>0.8.11</jacoco.version>
+    <!-- 覆盖率门槛：先按实测值向下取整，后续上调；见 <profiles> 注释 -->
+    <!-- exec 落盘路径必须是纯 ASCII：仓库路径含中文时 JaCoCo 写不出来（Windows 代码页问题） -->
+    <jacoco.destFile>${java.io.tmpdir}/carbonbal-jacoco.exec</jacoco.destFile>
+    <coverage.line.min>0.60</coverage.line.min>
+    <!-- 核心域分支覆盖：2026-11-27 实测值向下取整（accounting 13.05% / identity 16.06% / auth 48.50%）。
+         先钉住"不倒退"，v1.1 目标统一提到 0.50（见 docs/test-plan 的补测清单）。 -->
+    <coverage.accounting.branch.min>0.13</coverage.accounting.branch.min>
+    <coverage.identity.branch.min>0.16</coverage.identity.branch.min>
+    <coverage.auth.branch.min>0.48</coverage.auth.branch.min>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.baomidou</groupId>
+      <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+      <version>${mybatis-plus.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-mysql</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-api</artifactId>
+      <version>${jjwt.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-impl</artifactId>
+      <version>${jjwt.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-jackson</artifactId>
+      <version>${jjwt.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.librepdf</groupId>
+      <artifactId>openpdf</artifactId>
+      <version>${openpdf.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+      <version>2.0.31</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>carbonbal</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+      <!-- 顺序独立性（P1-10）：默认随机执行测试类，暴露隐式顺序依赖。
+           固定基线（排查用）：mvn -o test -Dsurefire.runOrder=alphabetical -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <runOrder>random</runOrder>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!--
+    覆盖率（P1-9）：只在 -Pcoverage 激活，避免 `mvn test` 每次多跑一遍插桩（本地 121 条用例 ~2 分钟）。
+    阈值以"当前实测值向下取整"为基线，随用例补强再上调；不允许假绿：
+      · BUNDLE LINE ≥ 0.60
+      · com.carbonbal.accounting / identity / auth 三个核心域包的 BRANCH ≥ 0.50
+    报告：target/site/jacoco/index.html
+  -->
+  <profiles>
+    <profile>
+      <id>coverage</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco.version}</version>
+            <executions>
+              <execution>
+                <id>prepare-agent</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+                <configuration>
+                  <!-- 仓库路径含中文（D:/能碳12）时，Maven 生成的命令行会被平台代码页破坏，
+                       JVM 里的 agent 拿到乱码 destfile → exec 文件根本写不出来。
+                       解决办法：把 exec 落到 ASCII 的系统临时目录（见 jacoco.destFile 属性）。 -->
+                  <destFile>${jacoco.destFile}</destFile>
+                  <append>false</append>
+                </configuration>
+              </execution>
+              <execution>
+                <id>report</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+                <configuration>
+                  <dataFile>${jacoco.destFile}</dataFile>
+                </configuration>
+              </execution>
+              <execution>
+                <id>check</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <configuration>
+                  <!-- check 默认去 target/jacoco.exec 找数据，这里必须与 prepare-agent 对齐 -->
+                  <dataFile>${jacoco.destFile}</dataFile>
+                  <rules>
+                    <rule>
+                      <element>BUNDLE</element>
+                      <limits>
+                        <limit>
+                          <counter>LINE</counter>
+                          <value>COVEREDRATIO</value>
+                          <minimum>${coverage.line.min}</minimum>
+                        </limit>
+                      </limits>
+                    </rule>
+                    <rule>
+                      <element>PACKAGE</element>
+                      <includes><include>com.carbonbal.accounting</include></includes>
+                      <limits>
+                        <limit>
+                          <counter>BRANCH</counter>
+                          <value>COVEREDRATIO</value>
+                          <minimum>${coverage.accounting.branch.min}</minimum>
+                        </limit>
+                      </limits>
+                    </rule>
+                    <rule>
+                      <element>PACKAGE</element>
+                      <includes><include>com.carbonbal.identity</include></includes>
+                      <limits>
+                        <limit>
+                          <counter>BRANCH</counter>
+                          <value>COVEREDRATIO</value>
+                          <minimum>${coverage.identity.branch.min}</minimum>
+                        </limit>
+                      </limits>
+                    </rule>
+                    <rule>
+                      <element>PACKAGE</element>
+                      <includes><include>com.carbonbal.auth</include></includes>
+                      <limits>
+                        <limit>
+                          <counter>BRANCH</counter>
+                          <value>COVEREDRATIO</value>
+                          <minimum>${coverage.auth.branch.min}</minimum>
+                        </limit>
+                      </limits>
+                    </rule>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

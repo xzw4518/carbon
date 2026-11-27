@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>用户体系 v2 · 页面原型</title>
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  body { padding-top: 52px; }
+  .proto-bar {
+    position: fixed; inset: 0 0 auto 0; height: 52px; z-index: 300;
+    display: flex; align-items: center; gap: 18px; padding: 0 18px;
+    background: #0B1F19; color: #E8F5EE; border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .proto-bar b { font-size: 13px; letter-spacing: .04em; }
+  .proto-tabs { display: flex; gap: 4px; margin-left: 10px; }
+  .proto-tabs button {
+    height: 30px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,.14);
+    background: transparent; color: #B6CEC4; font-size: 12.5px; cursor: pointer;
+  }
+  .proto-tabs button:hover { color: #fff; border-color: rgba(255,255,255,.3); }
+  .proto-tabs button.active { background: #12A374; border-color: #12A374; color: #fff; }
+  .proto-note { margin-left: auto; font-size: 11.5px; color: #6E8F81; }
+  .app { min-height: calc(100vh - 52px); }
+  .ctx-banner {
+    display: flex; align-items: center; gap: 10px; padding: 7px 18px; font-size: 12.5px;
+    background: #FFFBEB; border-bottom: 1px solid #F3D9A4; color: #7A4A05;
+  }
+  .ctx-banner b { font-weight: 650; }
+  .ctx-banner .btn { height: 26px; margin-left: auto; font-size: 12px; }
+  .nav-group-title {
+    padding: 9px 18px 5px; font-size: 10.5px; letter-spacing: .16em; color: #6E8F81;
+  }
+  .nav a.disabled { opacity: .45; cursor: default; }
+  .matrix { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .matrix th, .matrix td { border-bottom: 1px solid var(--line); padding: 7px 6px; text-align: center; }
+  .matrix th:first-child, .matrix td:first-child { text-align: left; padding-left: 10px; width: 180px; }
+  .matrix thead th { background: #F6FAF7; color: var(--ink-500); font-weight: 600; white-space: nowrap; }
+  .matrix tbody tr:hover td { background: #F8FCF9; }
+  .matrix input[type=checkbox] { width: 14px; height: 14px; accent-color: #0F7A5A; cursor: pointer; }
+  .matrix input:disabled { cursor: not-allowed; opacity: .28; }
+  .matrix tr.sod-bad td { background: #FEF3F2; }
+  .matrix tr.sod-bad td:first-child { box-shadow: inset 3px 0 0 #B42318; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--ink-400); margin-top: 8px; }
+  .legend span::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 2px; margin-right: 5px; background: var(--brand-500); }
+  .sod-tip {
+    display: none; margin-top: 10px; padding: 8px 11px; border-radius: 8px;
+    background: #FEF3F2; border: 1px solid #F6C9C4; color: #B42318; font-size: 12px;
+  }
+  .sod-tip.show { display: block; }
+  .role-perm { color: var(--ink-500); font-size: 12px; line-height: 1.5; }
+  .step-bar { display: flex; gap: 6px; margin-bottom: 16px; }
+  .step-bar div {
+    flex: 1; padding: 7px 8px; border-radius: 8px; background: #F4F8F5; color: var(--ink-400);
+    font-size: 12px; text-align: center; border: 1px solid var(--line);
+  }
+  .step-bar div.on { background: var(--brand-50); border-color: var(--brand-500); color: var(--brand-700); font-weight: 600; }
+  .summary { display: grid; grid-template-columns: 110px 1fr; gap: 7px 12px; font-size: 13px; }
+  .summary dt { color: var(--ink-500); }
+  .summary dd { margin: 0; color: var(--ink-900); }
+  .muted { color: var(--ink-400); }
+  .inline-tag { margin-left: 6px; }
+  .page-tree { max-height: 420px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; padding: 2px 12px; }
+  .page-group { border-bottom: 1px dashed var(--line); padding: 8px 0; }
+  .page-group:last-child { border-bottom: 0; }
+  .page-group-head { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-900); cursor: pointer; }
+  .page-group-head span { margin-left: auto; font-size: 11.5px; color: var(--ink-400); font-weight: 400; }
+  .page-group-head input, .page-item input { width: 14px; height: 14px; accent-color: #0F7A5A; cursor: pointer; }
+  .page-items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px 12px; padding: 7px 0 2px 22px; }
+  .page-item { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-500); cursor: pointer; }
+  @media (max-width: 900px) { .page-items { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 900px) {
+    .proto-note { display: none; }
+    .matrix th:first-child, .matrix td:first-child { width: 120px; }
+  }
+</style>
+</head>
+<body>
+<div class="proto-bar">
+  <b>用户体系 v2 · 页面原型</b>
+  <div class="proto-tabs">
+    <button data-screen="tenants" class="active">租户管理</button>
+    <button data-screen="users">用户管理</button>
+    <button data-screen="roles">角色管理</button>
+  </div>
+  <span class="proto-note">静态原型 · 数据为示例 · 不代表最终视觉</span>
+</div>
+
+<div class="app">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+    <header class="top" id="top"></header>
+    <div id="view"></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+(function () {
+  'use strict';
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  const state = {
+    screen: 'tenants',
+    entered: false,
+    tenant: { name: '华东精密制造有限公司', code: 'HDJM', expire: '2027-03-31', days: 126, admin: '陈立' },
+  };
+
+  /* ---------------- 数据 ---------------- */
+  const tenants = [
+    { name: '华东精密制造有限公司', code: 'HDJM', status: 'active', start: '2026-04-01', end: '2027-03-31', days: 126, seats: '18 / 30', admin: '陈立', phone: '138****0001' },
+    { name: '西南新材料集团', code: 'XNXC', status: 'active', start: '2026-01-01', end: '2026-12-31', days: 36, seats: '42 / 50', admin: '周敏', phone: '139****2210' },
+    { name: '北方热电有限公司', code: 'BFRE', status: 'expiring', start: '2026-01-01', end: '2026-12-10', days: 15, seats: '26 / 30', admin: '王强', phone: '137****8802' },
+    { name: '江南纺织股份', code: 'JNFZ', status: 'expired', start: '2025-12-01', end: '2026-11-30', days: 0, seats: '12 / 20', admin: '李娜', phone: '136****3105' },
+    { name: '海港物流集团', code: 'HGWL', status: 'suspended', start: '2026-03-01', end: '2027-02-28', days: 95, seats: '8 / 15', admin: '赵磊', phone: '135****9021' },
+  ];
+
+  const users = [
+    { name: '陈立', phone: '138****0001', type: '租户管理员', role: '—', status: '正常', last: '今天 09:12' },
+    { name: '张敏', phone: '138****0002', type: '普通用户', role: '运营', status: '正常', last: '今天 08:40' },
+    { name: '李伟', phone: '138****0003', type: '普通用户', role: '运营', status: '正常', last: '昨天 17:05' },
+    { name: '王芳', phone: '138****0004', type: '普通用户', role: '运营', status: '正常', last: '昨天 16:22' },
+    { name: '孙倩', phone: '138****0006', type: '普通用户', role: '财务查看', status: '锁定', last: '今天 07:58' },
+    { name: '赵磊', phone: '138****0005', type: '普通用户', role: '设备维护', status: '已停用', last: '11-20 10:03' },
+  ];
+
+  const pageTree = [
+    { group: '首页', pages: [['home', '首页']] },
+    { group: '企业管理', pages: [['enterprise.info', '企业信息'], ['group.overview', '集团汇总']] },
+    { group: '预算管理', pages: [['quota.list', '碳排放配额']] },
+    { group: '产值管理', pages: [['product.list', '产品列表'], ['production.value', '产品产值'], ['total.value', '生产总值']] },
+    { group: '碳排放核算', pages: [['accounting.list', '碳排放核算']] },
+    { group: '碳足迹管理', pages: [['footprint.list', '碳足迹核算'], ['footprint.analysis', '碳足迹分析'], ['supplier.list', '供应链碳管理'], ['supplier.analysis', '供应链分析']] },
+    { group: '碳资产管理', pages: [['asset.list', '碳配额资产'], ['ccer.list', '信用资产'], ['trade.list', '交易管理']] },
+    { group: '碳核查支撑', pages: [['evidence.list', '原始凭证'], ['third.report', '第三方报告']] },
+    { group: '报告查询', pages: [['report.carbon', '碳排放报告'], ['report.energy', '能源利用报告'], ['report.footprint', '产品碳足迹报告']] },
+    { group: '能碳分析', pages: [['analysis.energy', '能耗查询'], ['analysis.strategy', '策略推荐'], ['analysis.benchmark', '能效对标'], ['analysis.carbon', '碳排放查询'], ['analysis.quota', '碳配额核算'], ['analysis.flow', '能流分析']] },
+    { group: '设备设施', pages: [['facility.list', '设施管理'], ['device.list', '设备管理'], ['device.data', '设备数据']] },
+    { group: '预警管理', pages: [['alert.event', '事件预警'], ['alert.setting', '预警设置'], ['alert.record', '预警记录']] },
+    { group: '节能管理', pages: [['retrofit.list', '节能改造'], ['energy.mgmt', '能源管理情况']] },
+  ];
+  const ALL_PAGES = pageTree.flatMap(g => g.pages.map(p => p[0]));
+  const ROLE_PAGES = {
+    '运营': ALL_PAGES,
+    '财务查看': ['home', 'product.list', 'production.value', 'total.value', 'report.carbon', 'report.energy', 'report.footprint', 'analysis.carbon'],
+    '设备维护': ['home', 'facility.list', 'device.list', 'device.data', 'alert.record'],
+  };
+
+  const roles = [
+    { name: '运营', isDefault: true, count: 3, pages: ALL_PAGES.length, time: '随租户开通' },
+    { name: '财务查看', isDefault: false, count: 1, pages: ROLE_PAGES['财务查看'].length, time: '11-18 14:20' },
+    { name: '设备维护', isDefault: false, count: 1, pages: ROLE_PAGES['设备维护'].length, time: '11-21 09:10' },
+  ];
+
+  const statusTag = (s) => ({
+    active: '<span class="tag tag-ok dot">正常</span>',
+    expiring: '<span class="tag tag-warn dot">即将到期</span>',
+    expired: '<span class="tag" style="background:#FEE4E2;color:#B42318">已到期</span>',
+    suspended: '<span class="tag" style="background:#EEF2F0;color:#5B7168">已停用</span>',
+  }[s] || s);
+
+  const userStatus = (s) => ({
+    '正常': '<span class="tag tag-ok dot">正常</span>',
+    '锁定': '<span class="tag tag-warn dot">已锁定</span>',
+    '已停用': '<span class="tag" style="background:#EEF2F0;color:#5B7168">已停用</span>',
+  }[s] || s);
+
+  /* ---------------- 弹窗 / Toast ---------------- */
+  function toast(kind, title, msg) {
+    const el = document.createElement('div');
+    el.className = 'toast ' + (kind || 'ok');
+    el.innerHTML = `<div><b>${esc(title)}</b><span>${esc(msg || '')}</span></div>`;
+    $('#toasts').appendChild(el);
+    setTimeout(() => el.remove(), 3200);
+  }
+
+  function modal(opts) {
+    const wrap = document.createElement('div');
+    wrap.className = 'overlay';
+    wrap.innerHTML = `<div class="modal" style="width:${opts.width || 620}px" role="dialog" aria-modal="true">
+      <div class="modal-head"><h3 class="modal-title">${esc(opts.title)}</h3>
+        <button class="btn btn-sm modal-x" data-close style="margin-left:auto">关闭</button></div>
+      <div class="modal-body">${opts.body}</div>
+      <div class="modal-foot">${opts.foot || '<button class="btn" data-close>关闭</button>'}</div>
+    </div>`;
+    document.body.appendChild(wrap);
+    document.body.style.overflow = 'hidden';
+    const close = () => { wrap.remove(); if (!$('.overlay')) document.body.style.overflow = ''; };
+    $$('[data-close]', wrap).forEach(b => b.onclick = close);
+    wrap.addEventListener('mousedown', e => { if (e.target === wrap) close(); });
+    opts.onMount && opts.onMount(wrap, close);
+    return { close, el: wrap };
+  }
+
+  /* ---------------- 框架 ---------------- */
+  function renderSide() {
+    if (state.screen === 'tenants') {
+      $('#side').innerHTML = `
+        <div class="brand"><div class="brand-mark">碳</div>
+          <div><div class="brand-name">能碳管理平台</div><div class="brand-sub">PLATFORM CONSOLE</div></div></div>
+        <nav class="nav">
+          <div class="nav-group-title">平台管理</div>
+          <div class="nav-items">
+            <a href="#" data-noop>平台概览</a>
+            <a href="#" class="active" data-noop>租户管理</a>
+          </div>
+        </nav>
+        <div class="nav-foot">超级管理员<br>平台上下文 · 全域权限</div>`;
+    } else {
+      $('#side').innerHTML = `
+        <div class="brand"><div class="brand-mark">碳</div>
+          <div><div class="brand-name">能碳管理平台</div><div class="brand-sub">华东精密 · 租户控制台</div></div></div>
+        <nav class="nav">
+          <div class="nav-group-title">系统管理</div>
+          <div class="nav-items">
+            <a href="#" class="${state.screen === 'users' ? 'active' : ''}" data-screen="users">用户管理</a>
+            <a href="#" class="${state.screen === 'roles' ? 'active' : ''}" data-screen="roles">角色管理</a>
+            <a href="#" data-noop>租户信息</a>
+            <a href="#" data-noop>审计日志</a>
+          </div>
+          <div class="nav-group-title">业务菜单（按角色显示）</div>
+          <div class="nav-items">
+            <a href="#" class="disabled" data-noop>企业管理</a>
+            <a href="#" class="disabled" data-noop>碳排放核算</a>
+            <a href="#" class="disabled" data-noop>报告查询</a>
+            <a href="#" class="disabled" data-noop>能碳分析</a>
+          </div>
+        </nav>
+        <div class="nav-foot">陈立 · 租户管理员<br>授权至 ${state.tenant.expire}（剩余 ${state.tenant.days} 天）</div>`;
+    }
+    $$('#side [data-screen]').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.screen); });
+    $$('#side [data-noop]').forEach(a => a.onclick = e => { e.preventDefault(); toast('warn', '原型未展开', '该页面不在本次原型范围'); });
+  }
+
+  function renderTop() {
+    document.querySelectorAll('.ctx-banner').forEach(e => e.remove());
+    const crumb = state.screen === 'tenants' ? '平台管理 / 租户管理'
+      : state.screen === 'users' ? '系统管理 / 用户管理' : '系统管理 / 角色管理';
+    const who = state.screen === 'tenants' ? '超级管理员 · 平台' : '陈立 · 租户管理员';
+    $('#top').innerHTML = `<div class="small muted">${crumb}</div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <span class="tag ${state.screen === 'tenants' ? 'tag-info' : 'tag-ok'}">${state.screen === 'tenants' ? '平台上下文' : '租户上下文'}</span>
+        <span class="small">${who}</span>
+        <div class="avatar" style="width:30px;height:30px">${state.screen === 'tenants' ? '超' : '陈'}</div>
+      </div>`;
+    if (state.entered && state.screen !== 'tenants') {
+      const banner = document.createElement('div');
+      banner.className = 'ctx-banner';
+      banner.innerHTML = `<span>正在访问 <b>${state.tenant.name}</b>（${state.tenant.code}）· 授权至 ${state.tenant.expire}，剩余 ${state.tenant.days} 天</span>
+        <button class="btn" id="exit-tenant">退出平台上下文</button>`;
+      $('#top').after(banner);
+      $('#exit-tenant').onclick = () => { state.entered = false; go('tenants'); toast('ok', '已退出租户', '回到平台上下文'); };
+    }
+  }
+
+  /* ---------------- 租户管理 ---------------- */
+  function screenTenants() {
+    return `<div class="page">
+      <div class="page-head"><div><h1 class="page-title">租户管理</h1>
+        <p class="page-desc">开通、续期、停用租户；授权到期后该租户所有账号无法登录</p></div>
+        <div class="page-actions"><button class="btn btn-primary" id="new-tenant">开通租户</button></div></div>
+
+      <div class="grid grid-4" style="margin-bottom:14px">
+        ${[['租户总数', 5, '家'], ['正常', 2, '家'], ['30 日内到期', 1, '家'], ['席位使用', '106 / 145', '']].map(([k, v, u]) => `
+          <div class="kpi"><div class="kpi-label">${k}</div><div class="kpi-value">${v}<small>${u}</small></div></div>`).join('')}
+      </div>
+
+      <section class="card">
+        <div class="card-head"><h2 class="card-title">租户列表</h2><span class="card-sub">共 ${tenants.length} 家（示例）</span></div>
+        <div class="card-body" style="padding-bottom:0">
+          <div class="filters" style="margin-bottom:12px">
+            <div class="field"><label>关键词</label><input class="input" placeholder="租户名称 / 编码 / 管理员"></div>
+            <div class="field"><label>状态</label><select class="select"><option>全部</option><option>正常</option><option>即将到期</option><option>已到期</option><option>已停用</option></select></div>
+            <div class="field"><label>到期区间</label><input class="input" placeholder="开始日期 ~ 结束日期"></div>
+            <div class="field f-actions"><button class="btn btn-primary">查询</button><button class="btn">重置</button></div>
+          </div>
+        </div>
+        <div class="table-wrap"><table class="tb"><thead><tr>
+          <th>租户</th><th>状态</th><th>授权期</th><th class="num">剩余</th><th>席位</th><th>租户管理员</th><th style="width:230px">操作</th>
+        </tr></thead><tbody>
+          ${tenants.map(t => `<tr>
+            <td><b>${esc(t.name)}</b><div class="small muted">${esc(t.code)}</div></td>
+            <td>${statusTag(t.status)}</td>
+            <td class="small">${t.start} ~ ${t.end}</td>
+            <td class="num">${t.status === 'expired' ? '<span style="color:#B42318">已到期</span>' : t.days + ' 天'}</td>
+            <td class="num">${t.seats}</td>
+            <td>${esc(t.admin)}<div class="small muted">${t.phone}</div></td>
+            <td class="actions">
+              <button class="btn btn-sm btn-ghost" data-enter="${t.code}">进入租户</button>
+              <button class="btn btn-sm" data-renew="${t.code}">续期</button>
+              <button class="btn btn-sm" data-toggle="${t.code}">${t.status === 'suspended' ? '恢复' : '停用'}</button>
+            </td></tr>`).join('')}
+        </tbody></table></div>
+      </section>
+    </div>`;
+  }
+
+  function bindTenants(root) {
+    $('#new-tenant', root).onclick = openTenantWizard;
+    $$('[data-enter]', root).forEach(b => b.onclick = () => {
+      state.entered = true;
+      state.tenant = tenants.find(t => t.code === b.dataset.enter) || state.tenant;
+      go('users');
+      toast('ok', '已进入租户', state.tenant.name + ' · 超级管理员不受授权状态限制');
+    });
+    $$('[data-renew]', root).forEach(b => b.onclick = () => openRenew(b.dataset.renew));
+    $$('[data-toggle]', root).forEach(b => b.onclick = () => {
+      const t = tenants.find(x => x.code === b.dataset.toggle);
+      toast('warn', t.status === 'suspended' ? '恢复租户（原型）' : '停用租户（原型）', t.name + ' · 操作会写平台审计');
+    });
+  }
+
+  function openTenantWizard() {
+    let step = 1;
+    const data = { name: '', code: '', industry: '制造业', scale: '中型', phone: '', admin: '', start: '2026-11-25', end: '2027-11-24', plan: '标准版', seats: 30 };
+    const m = modal({
+      title: '开通租户', width: 640,
+      body: '<div id="wz-body"></div>',
+      foot: '<button class="btn" data-close>取消</button><button class="btn" id="wz-prev">上一步</button><button class="btn btn-primary" id="wz-next">下一步</button>',
+      onMount(wrap, close) {
+        const paint = () => {
+          $('#wz-body', wrap).innerHTML = `
+            <div class="step-bar">${['企业信息', '管理员', '授权', '确认'].map((s, i) => `<div class="${step === i + 1 ? 'on' : ''}">${i + 1}. ${s}</div>`).join('')}</div>
+            ${step === 1 ? `
+              <div class="grid grid-2">
+                <div class="field"><label class="req">企业名称</label><input class="input" data-k="name" value="${esc(data.name)}" placeholder="如 华东精密制造有限公司"></div>
+                <div class="field"><label class="req">租户编码</label><input class="input" data-k="code" value="${esc(data.code)}" placeholder="全局唯一，如 HDJM"></div>
+                <div class="field"><label>行业</label><select class="select" data-k="industry">${['制造业', '电力', '化工', '纺织', '物流'].map(x => `<option ${data.industry === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+                <div class="field"><label>规模</label><select class="select" data-k="scale">${['小型', '中型', '大型'].map(x => `<option ${data.scale === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+              </div>` : ''}
+            ${step === 2 ? `
+              <div class="grid grid-2">
+                <div class="field"><label class="req">管理员手机号</label><input class="input" data-k="phone" value="${esc(data.phone)}" placeholder="11 位手机号"></div>
+                <div class="field"><label class="req">管理员姓名</label><input class="input" data-k="admin" value="${esc(data.admin)}" placeholder="如 陈立"></div>
+              </div>
+              <div class="small muted" style="margin-top:10px">系统会为该手机号创建账号并返回一次性初始密码；首次登录需改密。</div>` : ''}
+            ${step === 3 ? `
+              <div class="grid grid-2">
+                <div class="field"><label class="req">授权开始</label><input class="input" type="date" data-k="start" value="${data.start}"></div>
+                <div class="field"><label class="req">授权到期</label><input class="input" type="date" data-k="end" value="${data.end}"></div>
+                <div class="field"><label>套餐</label><select class="select" data-k="plan">${['基础版', '标准版', '集团版'].map(x => `<option ${data.plan === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+                <div class="field"><label>席位上限</label><input class="input" type="number" data-k="seats" value="${data.seats}"></div>
+              </div>
+              <div class="small muted" style="margin-top:10px">到期当天 23:59:59 后失效，该租户所有账号无法登录；续期即恢复。</div>` : ''}
+            ${step === 4 ? `
+              <dl class="summary">
+                <dt>企业名称</dt><dd>${esc(data.name || '—')}</dd>
+                <dt>租户编码</dt><dd>${esc(data.code || '—')}</dd>
+                <dt>租户管理员</dt><dd>${esc(data.admin || '—')} · ${esc(data.phone || '—')}</dd>
+                <dt>授权期</dt><dd>${data.start} ~ ${data.end}</dd>
+                <dt>套餐 / 席位</dt><dd>${esc(data.plan)} · ${data.seats} 席</dd>
+              </dl>
+              <div class="small muted" style="margin-top:12px">提交后生成租户、默认角色【运营】、默认设施，并写平台审计。</div>` : ''}`;
+          $$('[data-k]', wrap).forEach(inp => inp.oninput = inp.onchange = () => { data[inp.dataset.k] = inp.value; });
+          $('#wz-prev', wrap).style.display = step === 1 ? 'none' : '';
+          $('#wz-next', wrap).textContent = step === 4 ? '提交开通' : '下一步';
+        };
+        $('#wz-prev', wrap).onclick = () => { if (step > 1) { step--; paint(); } };
+        $('#wz-next', wrap).onclick = () => {
+          if (step === 1 && (!data.name || !data.code)) return toast('err', '请填写企业名称与编码');
+          if (step === 2 && (!/^\d{11}$/.test(data.phone) || !data.admin)) return toast('err', '请填写 11 位手机号与姓名');
+          if (step === 3 && (!data.start || !data.end)) return toast('err', '请选择授权期');
+          if (step < 4) { step++; paint(); return; }
+          close();
+          toast('ok', '租户已开通（原型）', `${data.name} · 已生成租户管理员与默认角色【运营】`);
+        };
+        paint();
+      }
+    });
+    return m;
+  }
+
+  function openRenew(code) {
+    const t = tenants.find(x => x.code === code) || tenants[0];
+    modal({
+      title: '续期 · ' + t.name, width: 520,
+      body: `<div class="grid grid-2">
+          <div class="field"><label>当前到期</label><input class="input" value="${t.end}" disabled></div>
+          <div class="field"><label class="req">续期至</label><input class="input" type="date" id="renew-date" value="2027-12-31"></div>
+          <div class="field" style="grid-column:1/-1"><label>备注</label><input class="input" id="renew-note" placeholder="如 年度续费合同号"></div>
+        </div>
+        <div class="small muted" style="margin-top:10px">续期后状态立即恢复为正常，用户可重新登录；不补数据、不清权限。</div>`,
+      foot: `<button class="btn" data-close>取消</button><button class="btn btn-primary" id="renew-ok">确认续期</button>`,
+      onMount(wrap, close) {
+        $('#renew-ok', wrap).onclick = () => {
+          const d = $('#renew-date', wrap).value;
+          if (!d) return toast('err', '请选择续期日期');
+          close();
+          toast('ok', '已续期（原型）', `${t.name} 续期至 ${d}，状态恢复为正常`);
+        };
+      }
+    });
+  }
+
+  /* ---------------- 用户管理 ---------------- */
+  function screenUsers() {
+    return `<div class="page">
+      <div class="page-head"><div><h1 class="page-title">用户管理</h1>
+        <p class="page-desc">本租户成员与角色分配；一个普通用户只能绑定一个角色</p></div>
+        <div class="page-actions">
+          <button class="btn">导入</button><button class="btn">导出</button>
+          <button class="btn btn-primary" id="new-user">新增用户</button></div></div>
+
+      <div class="grid grid-4" style="margin-bottom:14px">
+        ${[['用户总数', 6, '人'], ['租户管理员', 1, '人'], ['已停用', 1, '人'], ['今日登录', 3, '人']].map(([k, v, u]) => `
+          <div class="kpi"><div class="kpi-label">${k}</div><div class="kpi-value">${v}<small>${u}</small></div></div>`).join('')}
+      </div>
+
+      <section class="card">
+        <div class="card-head"><h2 class="card-title">成员列表</h2><span class="card-sub">共 ${users.length} 人（示例）</span></div>
+        <div class="card-body" style="padding-bottom:0">
+          <div class="filters" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:10px;align-items:end;margin-bottom:12px">
+            <div class="field"><label>关键词</label><input class="input" placeholder="姓名 / 手机号"></div>
+            <div class="field"><label>用户类型</label><select class="select"><option>全部</option><option>租户管理员</option><option>普通用户</option></select></div>
+            <div class="field"><label>角色</label><select class="select"><option>全部</option>${roles.map(r => `<option>${esc(r.name)}</option>`).join('')}</select></div>
+            <div class="field"><label>状态</label><select class="select"><option>全部</option><option>正常</option><option>已锁定</option><option>已停用</option></select></div>
+            <div class="field f-actions" style="margin:0"><label>&nbsp;</label><div style="display:flex;gap:8px"><button class="btn btn-primary">查询</button><button class="btn">重置</button></div></div>
+          </div>
+        </div>
+        <div class="table-wrap"><table class="tb"><thead><tr>
+          <th>姓名</th><th>手机号</th><th>用户类型</th><th>角色</th><th>状态</th><th>最近登录</th><th style="width:250px">操作</th>
+        </tr></thead><tbody>
+          ${users.map(u => `<tr>
+            <td><b>${esc(u.name)}</b></td><td>${esc(u.phone)}</td>
+            <td>${u.type === '租户管理员' ? '<span class="tag tag-info">租户管理员</span>' : '普通用户'}</td>
+            <td>${esc(u.role)}</td>
+            <td>${userStatus(u.status)}</td><td class="small muted">${esc(u.last)}</td>
+            <td class="actions">
+              <button class="btn btn-sm btn-ghost" data-edit-user="${esc(u.name)}">编辑</button>
+              <button class="btn btn-sm" data-reset-user="${esc(u.name)}">重置密码</button>
+              ${u.status === '锁定' ? '<button class="btn btn-sm" data-unlock-user="' + esc(u.name) + '">解锁</button>' : ''}
+              <button class="btn btn-sm" data-toggle-user="${esc(u.name)}">${u.status === '已停用' ? '启用' : '停用'}</button>
+            </td></tr>`).join('')}
+        </tbody></table></div>
+      </section>
+    </div>`;
+  }
+
+  function bindUsers(root) {
+    $('#new-user', root).onclick = () => modal({
+      title: '新增用户', width: 560,
+      body: `<div class="grid grid-2">
+          <div class="field"><label class="req">姓名</label><input class="input" placeholder="如 张敏"></div>
+          <div class="field"><label class="req">手机号</label><input class="input" placeholder="11 位"></div>
+          <div class="field"><label class="req">用户类型</label><select class="select" id="nu-type"><option>普通用户</option><option>租户管理员</option></select></div>
+          <div class="field" id="nu-role-wrap"><label class="req">角色</label><select class="select">${roles.map(r => `<option>${esc(r.name)}</option>`).join('')}</select></div>
+        </div>
+        <div class="small muted" style="margin-top:10px">初始密码通过一次性方式返回；首次登录强制改密。</div>`,
+      foot: `<button class="btn" data-close>取消</button><button class="btn btn-primary" id="nu-ok">创建</button>`,
+      onMount(wrap, close) {
+        $('#nu-type', wrap).onchange = e => {
+          $('#nu-role-wrap', wrap).style.display = e.target.value === '租户管理员' ? 'none' : '';
+        };
+        $('#nu-ok', wrap).onclick = () => { close(); toast('ok', '用户已创建（原型）', '已返回一次性初始密码'); };
+      }
+    });
+    $$('[data-edit-user]', root).forEach(b => b.onclick = () => toast('ok', '编辑用户（原型）', b.dataset.editUser + ' · 修改角色'));
+    $$('[data-reset-user]', root).forEach(b => b.onclick = () => toast('ok', '已重置密码（原型）', b.dataset.resetUser + ' · 返回一次性临时密码'));
+    $$('[data-unlock-user]', root).forEach(b => b.onclick = () => toast('ok', '已解锁（原型）', b.dataset.unlockUser + ' · 失败次数清零'));
+    $$('[data-toggle-user]', root).forEach(b => b.onclick = () => toast('warn', '启停用户（原型）', b.dataset.toggleUser + ' · 会话立即失效'));
+  }
+
+  /* ---------------- 角色管理 ---------------- */
+  function screenRoles() {
+    return `<div class="page">
+      <div class="page-head"><div><h1 class="page-title">角色管理</h1>
+        <p class="page-desc">角色只配置可进入的功能页面；系统管理不在页面目录中</p></div>
+        <div class="page-actions"><button class="btn btn-primary" id="new-role">新建角色</button></div></div>
+
+      <div class="grid grid-4" style="margin-bottom:14px">
+        ${[['角色总数', '3 / 30', ''], ['已分配用户', 5, '人'], ['默认角色', 1, '个'], ['可配置页面', 34, '个']].map(([k, v, u]) => `
+          <div class="kpi"><div class="kpi-label">${k}</div><div class="kpi-value">${v}<small>${u}</small></div></div>`).join('')}
+      </div>
+
+      <section class="card">
+        <div class="card-head"><h2 class="card-title">角色列表</h2><span class="card-sub">新租户默认创建【运营】角色</span></div>
+        <div class="table-wrap"><table class="tb"><thead><tr>
+          <th>角色</th><th class="num">用户数</th><th class="num">可进入页面</th><th>更新时间</th><th style="width:180px">操作</th>
+        </tr></thead><tbody>
+          ${roles.map(r => `<tr>
+            <td><b>${esc(r.name)}</b>${r.isDefault ? '<span class="tag tag-info inline-tag">默认</span>' : ''}</td>
+            <td class="num">${r.count}</td>
+            <td class="num">${r.pages} 个</td>
+            <td class="small muted">${esc(r.time)}</td>
+            <td class="actions">
+              <button class="btn btn-sm btn-ghost" data-edit-role="${esc(r.name)}">编辑</button>
+              <button class="btn btn-sm" data-del-role="${esc(r.name)}">删除</button>
+            </td></tr>`).join('')}
+        </tbody></table></div>
+      </section>
+    </div>`;
+  }
+
+  function bindRoles(root) {
+    $('#new-role', root).onclick = () => openRoleEditor(null);
+    $$('[data-edit-role]', root).forEach(b => b.onclick = () => openRoleEditor(b.dataset.editRole));
+    $$('[data-del-role]', root).forEach(b => b.onclick = () => {
+      const name = b.dataset.delRole;
+      if (name === '运营') return toast('warn', '不能删除默认角色', '至少保留一个角色；可先新建并转移用户');
+      toast('warn', '删除角色（原型）', name + ' · 有用户时需先转移');
+    });
+  }
+
+  function pageGroup(g, selected) {
+    const allChecked = g.pages.every(([code]) => selected.includes(code));
+    return `<div class="page-group" data-group-box="${esc(g.group)}">
+      <label class="page-group-head"><input type="checkbox" data-group="${esc(g.group)}" ${allChecked ? 'checked' : ''}>
+        <b>${esc(g.group)}</b><span>${g.pages.length} 个页面</span></label>
+      <div class="page-items">
+        ${g.pages.map(([code, name]) => `<label class="page-item"><input type="checkbox" data-page="${code}" ${selected.includes(code) ? 'checked' : ''}> ${esc(name)}</label>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  function openRoleEditor(name) {
+    const selected = name && ROLE_PAGES[name] ? ROLE_PAGES[name].slice() : [];
+    modal({
+      title: name ? '编辑角色 · ' + name : '新建角色', width: 860,
+      body: `<div class="grid grid-2" style="margin-bottom:14px">
+          <div class="field"><label class="req">角色名称</label><input class="input" id="role-name" value="${esc(name || '')}" placeholder="如 财务查看"></div>
+          <div class="field"><label>说明</label><input class="input" id="role-desc" placeholder="这个角色解决什么问题"></div>
+        </div>
+        <div class="between" style="margin-bottom:8px">
+          <div class="small muted">勾选这个角色可以进入的功能页面；系统管理不在此列</div>
+          <div class="small"><b id="page-count">${selected.length}</b> / ${ALL_PAGES.length}</div>
+        </div>
+        <div class="page-tree" id="page-tree">
+          ${pageTree.map(g => pageGroup(g, selected)).join('')}
+        </div>`,
+      foot: '<button class="btn" data-close>取消</button><button class="btn btn-primary" id="role-save">保存角色</button>',
+      onMount(wrap, close) {
+        const countEl = $('#page-count', wrap);
+        const refresh = () => {
+          const n = $$('input[data-page]:checked', wrap).length;
+          countEl.textContent = n;
+          $$('.page-group', wrap).forEach(box => {
+            const boxes = $$('input[data-page]', box);
+            const group = $('input[data-group]', box);
+            const checked = boxes.filter(b => b.checked).length;
+            group.checked = checked === boxes.length;
+            group.indeterminate = checked > 0 && checked < boxes.length;
+          });
+        };
+        $$('input[data-group]', wrap).forEach(g => g.onchange = () => {
+          const box = g.closest('.page-group');
+          $$('input[data-page]', box).forEach(p => { p.checked = g.checked; });
+          refresh();
+        });
+        $$('input[data-page]', wrap).forEach(p => p.onchange = refresh);
+        const save = $('#role-save', wrap);
+        save.onclick = () => {
+          const n = $('#role-name', wrap).value.trim();
+          const count = $$('input[data-page]:checked', wrap).length;
+          if (!n) return toast('err', '请填写角色名称');
+          if (!count) return toast('err', '至少勾选一个页面');
+          close();
+          toast('ok', '角色已保存（原型）', `${n} · 可进入 ${count} 个页面，变更立即生效`);
+        };
+        refresh();
+      }
+    });
+  }
+
+  /* ---------------- 路由 ---------------- */
+  function go(screen) {
+    state.screen = screen;
+    renderSide(); renderTop();
+    const view = $('#view');
+    if (screen === 'tenants') { view.innerHTML = screenTenants(); bindTenants(view); }
+    else if (screen === 'users') { view.innerHTML = screenUsers(); bindUsers(view); }
+    else { view.innerHTML = screenRoles(); bindRoles(view); }
+    $$('.proto-tabs button').forEach(b => b.classList.toggle('active', b.dataset.screen === screen));
+    window.scrollTo({ top: 0 });
+  }
+
+  $$('.proto-tabs button').forEach(b => b.onclick = () => {
+    if (b.dataset.screen !== 'tenants') state.entered = true;
+    go(b.dataset.screen);
+  });
+
+  go('tenants');
+})();
+</script>
+</body>
+</html>

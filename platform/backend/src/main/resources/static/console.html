@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>能碳管理平台 · 切片 1</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230F7A5A'/%3E%3Ctext x='16' y='23' font-size='18' text-anchor='middle' fill='white' font-family='sans-serif'%3EC%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --brand:#0F7A5A; --brand-600:#12A374; --brand-50:#EFFAF5; --brand-100:#D8F2E8;
+    --ink:#0B1A26; --ink-700:#334155; --ink-500:#64748B; --ink-400:#94A3B8;
+    --line:#E2E8E4; --bg:#F5F7F6; --danger:#B42318; --warn:#B54708;
+    --radius:10px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif}
+  header{height:56px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 20px;gap:14px;position:sticky;top:0;z-index:20}
+  .logo{width:26px;height:26px;border-radius:8px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+  .brand{font-weight:600;letter-spacing:.02em}
+  .brand small{color:var(--ink-400);font-weight:400;margin-left:6px;font-size:12px}
+  header .sp{flex:1}
+  .who{color:var(--ink-500);font-size:12.5px}
+  .who b{color:var(--ink);font-weight:600}
+  nav{display:flex;gap:4px;padding:12px 20px 0;flex-wrap:wrap}
+  nav button{border:0;background:transparent;padding:8px 14px;border-radius:8px 8px 0 0;color:var(--ink-500);font-size:13.5px;cursor:pointer}
+  nav button.on{background:#fff;color:var(--brand);font-weight:600;box-shadow:0 -1px 0 var(--line),1px 0 0 var(--line),-1px 0 0 var(--line)}
+  main{padding:0 20px 32px}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:0 12px 12px 12px;padding:16px}
+  .panel.hidden{display:none}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field label{font-size:12px;color:var(--ink-500)}
+  input,select,textarea{height:34px;padding:0 10px;border:1px solid #CBD5D0;border-radius:8px;font:inherit;font-size:13px;background:#fff;color:var(--ink);outline:none}
+  input:focus,select:focus{border-color:var(--brand-600);box-shadow:0 0 0 3px rgba(18,163,116,.12)}
+  textarea{height:auto;padding:8px 10px;resize:vertical}
+  button.btn{height:34px;padding:0 14px;border:1px solid #CBD5D0;border-radius:8px;background:#fff;color:var(--ink-700);font:inherit;font-size:13px;cursor:pointer}
+  button.btn:hover{border-color:#A9BDB4}
+  button.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+  button.btn.primary:hover{background:#0C664B}
+  button.btn.ghost{border-color:transparent;color:var(--brand);background:var(--brand-50)}
+  button.btn:disabled{opacity:.5;cursor:not-allowed}
+  button.btn.sm{height:28px;padding:0 9px;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-weight:600;color:var(--ink-500);font-size:12px;padding:9px 10px;border-bottom:1px solid var(--line);background:#FAFCFB;white-space:nowrap}
+  td{padding:9px 10px;border-bottom:1px solid #F1F5F3;vertical-align:middle}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr:hover td{background:#FBFDFC}
+  .tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11.5px;line-height:18px;background:#F1F5F3;color:var(--ink-500)}
+  .tag.ok{background:#E7F7F0;color:#0C664B}
+  .tag.warn{background:#FEF3E2;color:#B54708}
+  .tag.err{background:#FDECEA;color:var(--danger)}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  .kpi{background:#FAFCFB;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .lb{font-size:12px;color:var(--ink-500)}
+  .kpi .vl{font-size:22px;font-weight:600;margin-top:2px;letter-spacing:-.02em}
+  .kpi .vl small{font-size:12px;color:var(--ink-400);font-weight:400;margin-left:3px}
+  .empty{padding:28px;text-align:center;color:var(--ink-400)}
+  .mask{position:fixed;inset:0;background:rgba(11,26,38,.45);display:grid;place-items:center;z-index:60}
+  .mask.hidden{display:none}
+  .card{background:#fff;border-radius:14px;padding:22px;width:360px;box-shadow:0 20px 50px -20px rgba(0,0,0,.4)}
+  .card h2{margin:0 0 4px;font-size:17px}
+  .card p{margin:0 0 16px;color:var(--ink-500);font-size:12.5px}
+  .card .field{margin-bottom:12px}
+  .card input{width:100%;height:38px}
+  .card .btn{width:100%;height:38px;margin-top:4px}
+  .err{color:var(--danger);font-size:12.5px;min-height:18px;margin-top:6px}
+  .modal{width:520px;max-height:82vh;overflow:auto}
+  .modal h3{margin:0 0 14px;font-size:16px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .foot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+  .note{font-size:12px;color:var(--ink-400);margin-top:10px}
+  .banner{border:1px solid #F3D9A4;background:#FFFBEB;color:#7A4A05;border-radius:10px;padding:9px 12px;font-size:12.5px;margin-bottom:12px}
+  .banner.hidden{display:none}
+  .split{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  .split .card2{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .split h3{margin:0 0 8px;font-size:13.5px}
+  .list-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed #EDF2EF;font-size:12.5px}
+  .list-row:last-child{border-bottom:0}
+  .subtabs{display:flex;gap:6px;margin-bottom:12px}
+  .subtabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 13px;font-size:12.5px;cursor:pointer;color:var(--ink-500)}
+  .subtabs button.on{background:var(--brand-50);border-color:var(--brand-100);color:var(--brand);font-weight:600}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+  .form-grid .full{grid-column:1/-1}
+  .chart{margin:4px 0 14px}
+  .chart .crow{display:grid;grid-template-columns:160px 1fr 90px;gap:9px;align-items:center;font-size:12px;margin:5px 0}
+  .chart .track{height:10px;border-radius:5px;background:#EEF4F1;overflow:hidden}
+  .chart .track i{display:block;height:10px;border-radius:5px;background:var(--brand-600)}
+  .chart .crow b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tree-lv1{font-weight:600}
+  .tree-lv2{padding-left:20px}
+  .tree-lv3{padding-left:40px}
+  .pill{display:inline-block;padding:1px 7px;border-radius:999px;background:#F1F5F3;color:var(--ink-500);font-size:11.5px}
+  @media (max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}.modal{width:92vw}.split{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="mask" id="loginMask">
+  <div class="card">
+    <h2>能碳管理平台</h2>
+    <p>设备数据 → 碳核算 → 报告（切片 1）</p>
+    <div class="field"><label>账号</label><input id="lgUser" placeholder="手机号或用户名" autocomplete="username"></div>
+    <div class="field"><label>密码</label><input id="lgPwd" type="password" placeholder="密码" autocomplete="current-password"></div>
+    <button class="btn primary" id="lgBtn">登录</button>
+    <div class="err" id="lgErr"></div>
+    <div class="note">请使用平台分配的账号登录；忘记密码请联系管理员重置。</div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">碳</div>
+  <div class="brand">能碳管理平台<small>业务控制台</small></div>
+  <div class="sp"></div>
+  <div class="who" id="who"></div>
+  <button class="btn sm" id="btnOut">退出</button>
+</header>
+
+<nav>
+  <button data-tab="overview">总览</button>
+  <button data-tab="reading" class="on">设备数据</button>
+  <button data-tab="accounting">碳排放核算</button>
+  <button data-tab="output">产值台账</button>
+  <button data-tab="verify">碳核查</button>
+  <button data-tab="facility">设施</button>
+  <button data-tab="analysis">分析</button>
+  <button data-tab="org">企业信息</button>
+  <button data-tab="audit">审计日志</button>
+</nav>
+
+<main>
+  <section class="panel hidden" id="tab-overview">
+    <div class="toolbar">
+      <div class="field"><label>年度</label><input id="ovYear" type="number" value="2026" style="width:100px"></div>
+      <button class="btn primary" id="ovQuery">刷新</button>
+      <div style="flex:1"></div>
+      <div class="note" id="ovOrg" style="margin:0"></div>
+    </div>
+    <div class="kpis" id="ovKpis"></div>
+    <div class="split">
+      <div>
+        <div class="card2"><h3>月度能耗与排放</h3><div id="ovMonthly"></div></div>
+      </div>
+      <div>
+        <div class="card2" style="margin-bottom:14px"><h3>待办通知</h3><div id="ovTodos"></div></div>
+        <div class="card2"><h3>最新预警</h3><div id="ovAlerts"></div></div>
+      </div>
+    </div>
+    <div class="note" id="ovQuota"></div>
+  </section>
+  <section class="panel" id="tab-reading">
+    <div class="banner hidden" id="readBanner"></div>
+    <div class="toolbar">
+      <div class="field"><label>设备</label>
+        <select id="fDevice"><option value="">全部设备</option></select></div>
+      <div class="field"><label>起始</label><input id="fFrom" type="date" value="2026-11-01"></div>
+      <div class="field"><label>结束</label><input id="fTo" type="date" value="2026-11-30"></div>
+      <button class="btn primary" id="rQuery">查询</button>
+      <div style="flex:1"></div>
+      <button class="btn" id="rImport">CSV 导入</button>
+      <button class="btn primary" id="rNew">新增读数</button>
+    </div>
+    <div id="readTable"></div>
+    <div class="note">读数变更会写审计（改前/改后）；所属期间锁定后禁止写入。</div>
+  </section>
+
+  <section class="panel hidden" id="tab-accounting">
+    <div class="banner hidden" id="accBanner"></div>
+    <div class="toolbar">
+      <div class="field"><label>核算期</label><input id="aPeriod" value="2026-11" placeholder="YYYY-MM"></div>
+      <button class="btn" id="aLoad">加载</button>
+      <button class="btn primary" id="aCalc">计算</button>
+      <button class="btn" id="aSubmit">提交</button>
+      <button class="btn" id="aLock">锁定</button>
+      <button class="btn" id="aUnlock">解锁</button>
+      <div style="flex:1"></div>
+      <button class="btn primary" id="aReport">生成报告</button>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="lb">Scope 1 直接排放</div><div class="vl" id="kS1">—</div></div>
+      <div class="kpi"><div class="lb">Scope 2 间接排放</div><div class="vl" id="kS2">—</div></div>
+      <div class="kpi"><div class="lb">合计</div><div class="vl" id="kTotal">—</div></div>
+      <div class="kpi"><div class="lb">状态 / 版本</div><div class="vl" id="kStatus" style="font-size:15px">—</div></div>
+    </div>
+    <div id="accLines"></div>
+    <div id="accUnlocks"></div>
+    <div id="accReports"></div>
+    <div class="note">因子优先级：客户自定义 &gt; 地方指南 &gt; 国家缺省值；重算生成新版本，旧报告不变。</div>
+  </section>
+
+  <section class="panel hidden" id="tab-output">
+    <div class="toolbar">
+      <div class="field"><label>台账</label><select id="ovwType">
+        <option value="production-values">产品产值</option>
+        <option value="total-values">生产总值</option></select></div>
+      <div class="field"><label>起始月</label><input id="ovwFrom" type="month" value="2026-01"></div>
+      <div class="field"><label>结束月</label><input id="ovwTo" type="month" value="2026-12"></div>
+      <button class="btn primary" id="ovwQuery">查询</button>
+      <div style="flex:1"></div>
+      <button class="btn" id="ovwExport">导出 CSV</button>
+      <button class="btn primary" id="ovwNew">新增</button>
+    </div>
+    <div id="ovwTable"></div>
+    <div class="note">同月同产品只能登记一条；核算期锁定后禁止修改。删除仅管理员。</div>
+  </section>
+
+  <section class="panel hidden" id="tab-verify">
+    <div class="subtabs" id="vfTabs">
+      <button data-v="evidence" class="on">原始凭证</button>
+      <button data-v="third">第三方报告</button>
+    </div>
+    <div class="toolbar">
+      <div class="field"><label>关键字</label><input id="vfKw" placeholder="名称"></div>
+      <button class="btn primary" id="vfQuery">查询</button>
+      <div style="flex:1"></div>
+      <button class="btn" id="vfExport">导出 CSV</button>
+      <button class="btn primary" id="vfNew">新增</button>
+    </div>
+    <div id="vfTable"></div>
+    <div class="note">凭证支持多附件；第三方报告单文件。有效期结束不能早于开始。</div>
+  </section>
+
+  <section class="panel hidden" id="tab-facility">
+    <div class="toolbar">
+      <div class="field"><label>关键字</label><input id="fcKw" placeholder="名称 / 编码"></div>
+      <button class="btn primary" id="fcQuery">查询</button>
+      <div style="flex:1"></div>
+      <button class="btn" id="fcExport">导出 CSV</button>
+      <button class="btn primary" id="fcNew">新增设施</button>
+    </div>
+    <div id="fcTable"></div>
+    <div class="note">层级由上级设施自动推导；存在下级时不能删除。</div>
+  </section>
+
+  <section class="panel hidden" id="tab-analysis">
+    <div class="toolbar">
+      <div class="field"><label>分析页</label><select id="anPage">
+        <option value="analysis/energy-consumption">能耗查询</option>
+        <option value="analysis/carbon-emission">碳排放查询</option>
+        <option value="analysis/energy-efficiency">能效对标</option>
+        <option value="analysis/energy-flow">能流分析</option>
+        <option value="analysis/strategy">能源消费分析与策略推荐</option>
+        <option value="analysis/quota">碳配额核算</option>
+        <option value="analysis/footprint">碳足迹分析</option>
+        <option value="analysis/supply-chain">供应链碳管理分析</option>
+      </select></div>
+      <div class="field"><label>起始月</label><input id="anFrom" type="month" value="2026-09"></div>
+      <div class="field"><label>结束月</label><input id="anTo" type="month" value="2026-11"></div>
+      <button class="btn primary" id="anQuery">查询</button>
+    </div>
+    <div class="kpis" id="anKpis"></div>
+    <div id="anChart"></div>
+    <div id="anTable"></div>
+    <div class="note">分析结果实时聚合设备读数、核算因子与产值；碳足迹/供应链按年度或全量。</div>
+  </section>
+
+  <section class="panel hidden" id="tab-org">
+    <div class="toolbar">
+      <div class="note" style="margin:0">企业档案由管理员维护，本端只读</div>
+      <div style="flex:1"></div>
+      <button class="btn primary" id="orgEdit">编辑</button>
+    </div>
+    <div id="orgTable"></div>
+  </section>
+
+  <section class="panel hidden" id="tab-audit">
+    <div class="toolbar">
+      <div class="field"><label>实体</label>
+        <select id="auEntity">
+          <option value="">全部</option>
+          <option value="device_reading">device_reading</option>
+          <option value="accounting_period">accounting_period</option>
+          <option value="emission_factor">emission_factor</option>
+          <option value="report">report</option>
+        </select></div>
+      <div class="field"><label>实体 ID</label><input id="auId" placeholder="可选"></div>
+      <button class="btn primary" id="auQuery">查询</button>
+    </div>
+    <div id="auTable"></div>
+  </section>
+</main>
+
+<div class="mask hidden" id="modalMask">
+  <div class="card modal" id="modalBody"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => v == null ? '—' : Number(v).toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 4});
+let TOKEN = localStorage.getItem('cb_token') || '';
+let ME = JSON.parse(localStorage.getItem('cb_me') || 'null');
+let DEVICES = [];
+let PERIOD = null;
+let REPORTS = [];
+
+function toast(msg, kind) {
+  const el = document.createElement('div');
+  el.textContent = msg;
+  el.style.cssText = 'position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:99;padding:9px 16px;border-radius:9px;font-size:13px;color:#fff;background:' + (kind === 'err' ? '#B42318' : '#0F7A5A');
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+
+async function api(method, path, body, raw) {
+  const opt = { method, headers: {} };
+  if (TOKEN) opt.headers.Authorization = 'Bearer ' + TOKEN;
+  if (body instanceof FormData) opt.body = body;
+  else if (body !== undefined && body !== null) {
+    opt.headers['Content-Type'] = 'application/json';
+    opt.body = JSON.stringify(body);
+  }
+  const res = await fetch('/api' + path, opt);
+  if (res.status === 401) { logout(); throw new Error('登录已过期'); }
+  if (raw) return res;
+  let j = null;
+  try { j = await res.json(); } catch (e) { j = null; }
+  if (!j || j.status !== 0) {
+    const msg = (j && j.body && j.body.message) || ('请求失败 ' + res.status);
+    const err = new Error(msg);
+    err.code = j ? j.status : res.status;
+    err.detail = j && j.body ? j.body.detail : null;
+    throw err;
+  }
+  return j.body;
+}
+
+function logout() {
+  TOKEN = ''; ME = null;
+  localStorage.removeItem('cb_token'); localStorage.removeItem('cb_me');
+  $('#loginMask').classList.remove('hidden');
+  $('#who').textContent = '';
+}
+
+async function login() {
+  const u = $('#lgUser').value.trim(), p = $('#lgPwd').value;
+  $('#lgErr').textContent = '';
+  try {
+    const r = await fetch('/api/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p })
+    });
+    const j = await r.json();
+    if (!r.ok || j.status !== 0) throw new Error((j.body && j.body.message) || '登录失败');
+    TOKEN = j.body.token; ME = j.body.user;
+    localStorage.setItem('cb_token', TOKEN);
+    localStorage.setItem('cb_me', JSON.stringify(ME));
+    boot();
+  } catch (e) { $('#lgErr').textContent = e.message; }
+}
+
+/* ---------- 设备数据 ---------- */
+async function loadDevices() {
+  DEVICES = await api('GET', '/devices');
+  const sel = $('#fDevice');
+  sel.innerHTML = '<option value="">全部设备</option>' + DEVICES.map(d =>
+    `<option value="${d.id}">${esc(d.name)}（${esc(d.code)}）</option>`).join('');
+}
+
+async function loadReadings() {
+  const dev = $('#fDevice').value;
+  const from = $('#fFrom').value ? $('#fFrom').value + 'T00:00:00' : '';
+  const to = $('#fTo').value ? $('#fTo').value + 'T23:59:59' : '';
+  const qs = new URLSearchParams();
+  if (dev) qs.set('deviceId', dev);
+  if (from) qs.set('from', from);
+  if (to) qs.set('to', to);
+  const rows = await api('GET', '/device-readings?' + qs.toString());
+  const box = $('#readTable');
+  if (!rows.length) { box.innerHTML = '<div class="empty">该条件下暂无读数</div>'; return; }
+  box.innerHTML = `<table><thead><tr>
+      <th>设备</th><th>时间</th><th class="num">数值</th><th>单位</th><th class="num">换算率</th>
+      <th>来源</th><th>状态</th><th style="width:90px">操作</th></tr></thead><tbody>
+    ${rows.map(r => `<tr>
+      <td><b>${esc(r.deviceName)}</b><div class="note">${esc(r.deviceCode)}</div></td>
+      <td>${esc(r.ts.replace('T', ' ').slice(0, 16))}</td>
+      <td class="num">${num(r.qty)}</td><td>${esc(r.unit)}</td><td class="num">${r.rate}</td>
+      <td><span class="tag ${r.source === '自动采集' ? 'ok' : 'warn'}">${esc(r.source)}</span></td>
+      <td><span class="tag ${r.status === '正常' ? 'ok' : 'err'}">${esc(r.status)}</span></td>
+      <td><button class="btn sm" data-edit='${JSON.stringify(r)}'>编辑</button></td>
+    </tr>`).join('')}</tbody></table>`;
+  box.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openReading(JSON.parse(b.dataset.edit)));
+}
+
+function openReading(row) {
+  const isNew = !row;
+  const d = row || { deviceId: DEVICES[0] && DEVICES[0].id, ts: '2026-11-25T08:00', qty: '', unit: 'kWh', rate: 0.001, source: '手工补录', status: '正常' };
+  openModal(`<h3>${isNew ? '新增读数' : '编辑读数'}</h3>
+    <div class="row2">
+      <div class="field"><label>设备</label><select id="mDev">${DEVICES.map(x =>
+        `<option value="${x.id}" ${x.id === d.deviceId ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
+      <div class="field"><label>时间</label><input id="mTs" type="datetime-local" value="${(d.ts || '').slice(0, 16)}"></div>
+      <div class="field"><label>数值</label><input id="mQty" type="number" step="0.0001" value="${d.qty}"></div>
+      <div class="field"><label>单位</label><input id="mUnit" value="${esc(d.unit)}"></div>
+      <div class="field"><label>换算率（到因子单位）</label><input id="mRate" type="number" step="0.00001" value="${d.rate}"></div>
+      <div class="field"><label>来源</label><select id="mSrc">
+        <option ${d.source === '自动采集' ? 'selected' : ''}>自动采集</option>
+        <option ${d.source === '手工补录' ? 'selected' : ''}>手工补录</option></select></div>
+    </div>
+    <div class="err" id="mErr"></div>
+    <div class="foot"><button class="btn" data-close>取消</button><button class="btn primary" id="mSave">保存</button></div>`);
+  $('#mSave').onclick = async () => {
+    $('#mErr').textContent = '';
+    const body = {
+      deviceId: Number($('#mDev').value),
+      ts: $('#mTs').value.length === 16 ? $('#mTs').value + ':00' : $('#mTs').value,
+      qty: Number($('#mQty').value), unit: $('#mUnit').value.trim(),
+      rate: Number($('#mRate').value), source: $('#mSrc').value, status: '正常'
+    };
+    try {
+      if (isNew) await api('POST', '/device-readings', body);
+      else await api('PUT', '/device-readings/' + d.id, { version: d.version, ...body });
+      closeModal(); toast('已保存'); await loadReadings();
+    } catch (e) {
+      $('#mErr').textContent = e.code === 409 ? (e.message + '（当前版本 ' + (e.detail && e.detail.currentVersion) + '）') : e.message;
+    }
+  };
+}
+
+function importCsv() {
+  openModal(`<h3>CSV 导入</h3>
+    <div class="note" style="margin-bottom:8px">表头固定：deviceCode,ts,qty,unit,rate,source（ts 形如 2026-11-26 08:00）</div>
+    <input type="file" id="csvFile" accept=".csv,text/csv">
+    <div class="err" id="mErr"></div>
+    <div class="foot"><button class="btn" data-close>取消</button><button class="btn primary" id="mUp">上传</button></div>`);
+  $('#mUp').onclick = async () => {
+    const f = $('#csvFile').files[0];
+    if (!f) { $('#mErr').textContent = '请选择文件'; return; }
+    const fd = new FormData(); fd.append('file', f);
+    try {
+      const r = await api('POST', '/device-readings/import', fd);
+      closeModal();
+      toast(`导入完成：成功 ${r.success} 行，失败 ${r.failed} 行`, r.failed ? 'err' : 'ok');
+      if (r.failed) openModal(`<h3>导入失败明细</h3><table><thead><tr><th>行号</th><th>原因</th></tr></thead><tbody>
+        ${r.errors.map(e => `<tr><td>${e.line}</td><td>${esc(e.reason)}</td></tr>`).join('')}</tbody></table>
+        <div class="foot"><button class="btn primary" data-close>知道了</button></div>`);
+      await loadReadings();
+    } catch (e) { $('#mErr').textContent = e.message; }
+  };
+}
+
+/* ---------- 核算 ---------- */
+async function loadPeriod() {
+  const p = $('#aPeriod').value.trim();
+  PERIOD = await api('GET', '/accounting-periods/' + p);
+  renderPeriod();
+  await loadReports(p);
+}
+
+function renderPeriod() {
+  const p = PERIOD;
+  const has = p.status !== 'absent';
+  $('#kS1').textContent = has && p.scope1 != null ? num(p.scope1) + ' tCO2e' : '—';
+  $('#kS2').textContent = has && p.scope2 != null ? num(p.scope2) + ' tCO2e' : '—';
+  $('#kTotal').textContent = has && p.total != null ? num(p.total) + ' tCO2e' : '—';
+  $('#kStatus').innerHTML = has
+    ? `<span class="tag ${p.status === 'locked' ? 'err' : p.status === 'submitted' ? 'warn' : 'ok'}">${p.status}</span> v${p.calcVersion} / 记录版本 ${p.version}`
+    : '<span class="tag">未创建</span>';
+
+  const lines = p.lines || [];
+  $('#accLines').innerHTML = lines.length ? `<table><thead><tr>
+      <th>设备</th><th class="num">活动数据</th><th>单位</th><th class="num">因子</th>
+      <th class="num">排放量（tCO2e）</th><th>范围</th></tr></thead><tbody>
+      ${lines.map(l => `<tr><td>${esc(l.deviceName)}</td><td class="num">${num(l.activity)}</td>
+        <td>${esc(l.activityUnit)}</td><td class="num">${l.factorValue}</td>
+        <td class="num">${num(l.emission)}</td>
+        <td><span class="tag ${l.scopeType === 'scope1' ? 'warn' : 'ok'}">${l.scopeType}</span></td></tr>`).join('')}
+    </tbody></table>` : '<div class="empty">尚未计算，点「计算」生成明细</div>';
+
+  const us = p.unlocks || [];
+  $('#accUnlocks').innerHTML = us.length ? `<h4 style="margin:16px 0 8px;font-size:13px">解锁记录</h4>
+    <table><thead><tr><th>时间</th><th>原因</th><th>申请人</th></tr></thead><tbody>
+    ${us.map(u => `<tr><td>${esc((u.at || '').replace('T', ' ').slice(0, 16))}</td>
+      <td>${esc(u.reason)}</td><td>${esc(u.requestedBy)}</td></tr>`).join('')}</tbody></table>` : '';
+
+  const st = p.status;
+  $('#aCalc').disabled = st === 'locked';
+  $('#aSubmit').disabled = st !== 'calculated';
+  $('#aLock').disabled = st !== 'submitted';
+  $('#aUnlock').disabled = st !== 'locked';
+  $('#aReport').disabled = !(p.calcVersion > 0);
+}
+
+async function loadReports(period) {
+  try {
+    REPORTS = await api('GET', '/reports?period=' + encodeURIComponent(period));
+  } catch (e) { REPORTS = []; }
+  $('#accReports').innerHTML = REPORTS.length ? `<h4 style="margin:16px 0 8px;font-size:13px">报告</h4>
+    <table><thead><tr><th>文件</th><th>核算版本</th><th class="num">大小</th><th>生成时间</th><th>指纹</th><th></th></tr></thead><tbody>
+    ${REPORTS.map(r => `<tr><td>${esc(r.fileName)}</td><td>v${r.calcVersion}</td>
+      <td class="num">${(r.fileSize / 1024).toFixed(1)} KB</td>
+      <td>${esc((r.generatedAt || '').replace('T', ' ').slice(0, 16))}</td>
+      <td class="note">${esc(r.sha256.slice(0, 12))}…</td>
+      <td><button class="btn sm" data-dl="${r.id}">下载</button></td></tr>`).join('')}
+    </tbody></table>` : '';
+  $('#accReports').querySelectorAll('[data-dl]').forEach(b => b.onclick = async () => {
+    const res = await api('GET', '/reports/' + b.dataset.dl + '/download', undefined, true);
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const meta = REPORTS.find(r => String(r.id) === b.dataset.dl);
+    a.download = meta ? meta.fileName : ('report-' + b.dataset.dl + '.pdf');
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+}
+
+async function accAction(kind) {
+  const p = $('#aPeriod').value.trim();
+  const banner = $('#accBanner');
+  banner.classList.add('hidden');
+  try {
+    let r;
+    if (kind === 'calc') r = await api('POST', `/accounting-periods/${p}/calculate`);
+    if (kind === 'submit') r = await api('POST', `/accounting-periods/${p}/submit`, { version: PERIOD.version });
+    if (kind === 'lock') r = await api('POST', `/accounting-periods/${p}/lock`, { version: PERIOD.version });
+    if (kind === 'unlock') {
+      const reason = await askReason();
+      if (!reason) return;
+      r = await api('POST', `/accounting-periods/${p}/unlock`, { version: PERIOD.version, reason });
+    }
+    if (kind === 'report') {
+      const m = await api('POST', '/reports', { period: p });
+      toast('报告已生成 v' + m.calcVersion);
+      PERIOD = await api('GET', '/accounting-periods/' + p);
+      renderPeriod(); await loadReports(p);
+      return;
+    }
+    PERIOD = r; renderPeriod(); await loadReports(p);
+    toast(kind === 'calc' ? '计算完成' : kind === 'submit' ? '已提交' : kind === 'lock' ? '已锁定' : '已解锁');
+  } catch (e) {
+    banner.textContent = e.message + (e.detail && e.detail.currentVersion != null ? '（当前版本 ' + e.detail.currentVersion + '，请重新加载）' : '');
+    banner.classList.remove('hidden');
+  }
+}
+
+function askReason() {
+  return new Promise(resolve => {
+    openModal(`<h3>解锁核算期</h3>
+      <div class="field"><label>解锁原因（必填，会写入审计）</label>
+        <textarea id="mReason" rows="3" placeholder="如：客户更正 11 月燃气表读数"></textarea></div>
+      <div class="err" id="mErr"></div>
+      <div class="foot"><button class="btn" data-close>取消</button><button class="btn primary" id="mOk">确认解锁</button></div>`);
+    $('#modalBody').querySelectorAll('[data-close]').forEach(b => b.onclick = () => { closeModal(); resolve(null); });
+    $('#mOk').onclick = () => {
+      const v = $('#mReason').value.trim();
+      if (!v) { $('#mErr').textContent = '请填写原因'; return; }
+      closeModal(); resolve(v);
+    };
+  });
+}
+
+/* ---------- 总览（首页聚合） ---------- */
+async function loadOverview() {
+  const y = Number($('#ovYear').value) || new Date().getFullYear();
+  try {
+    const o = await api('GET', '/overview?year=' + y);
+    $('#ovOrg').textContent = (o.orgName || '') + (o.orgShortName ? ' · ' + o.orgShortName : '');
+    $('#ovKpis').innerHTML = (o.kpis || []).map(k => `<div class="kpi">
+      <div class="lb">${esc(k.label)}</div>
+      <div class="vl">${esc(k.value)}<small>${esc(k.unit || '')}</small></div>
+      <div class="note">${esc(k.foot || '')}</div></div>`).join('');
+    const rows = (o.monthly || []).filter(m => Number(m.energy) > 0 || Number(m.emission) > 0);
+    $('#ovMonthly').innerHTML = rows.length ? `<table><thead><tr>
+      <th>月份</th><th class="num">能耗(tce)</th><th class="num">排放(tCO2e)</th></tr></thead><tbody>
+      ${rows.map(m => `<tr><td>${esc(m.period)}</td><td class="num">${num(m.energy)}</td>
+        <td class="num">${num(m.emission)}</td></tr>`).join('')}</tbody></table>`
+      : '<div class="empty">暂无月度数据</div>';
+    $('#ovTodos').innerHTML = (o.todos || []).length ? o.todos.map(t => `<div class="list-row">
+      <div><b>${esc(t.title)}</b><div class="note">${esc(t.meta)}</div></div>
+      <span class="tag warn">${esc(t.action)}</span></div>`).join('') : '<div class="empty">暂无待办</div>';
+    $('#ovAlerts').innerHTML = (o.alerts || []).length ? o.alerts.map(a => `<div class="list-row">
+      <div><b>${esc(a.title)}</b><div class="note">${esc(a.value)} · ${esc((a.occurredAt || '').replace('T', ' ').slice(0, 16))}</div></div>
+      <span class="tag ${a.status === 'handled' ? 'ok' : 'err'}">${esc(a.status)}</span></div>`).join('')
+      : '<div class="empty">暂无预警</div>';
+    const q = o.quota || {};
+    $('#ovQuota').textContent = `年度配额 ${num(q.total)} tCO2e · 已排放 ${num(q.used)} · 使用率 ${q.ratio ?? '—'}% · 剩余 ${num(q.remaining)}`;
+  } catch (e) {
+    $('#ovOrg').textContent = e.message;
+  }
+}
+
+/* ---------- 通用：下载 / 权限 / 确认 ---------- */
+async function downloadApi(path) {
+  const res = await api('GET', path, undefined, true);
+  if (!res.ok) { toast('下载失败 ' + res.status, 'err'); return; }
+  const blob = await res.blob();
+  const cd = res.headers.get('Content-Disposition') || '';
+  const m = /filename\*=UTF-8''([^;]+)/.exec(cd);
+  const name = m ? decodeURIComponent(m[1]) : 'download.bin';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+const canWrite = () => ME && (ME.role === 'admin' || ME.role === 'filler');
+const isAdmin = () => ME && ME.role === 'admin';
+
+function confirmModal(text) {
+  return new Promise(resolve => {
+    openModal(`<h3>确认操作</h3><p>${esc(text)}</p>
+      <div class="foot"><button class="btn" data-close>取消</button>
+      <button class="btn primary" id="mYes">确定</button></div>`);
+    $('#mYes').onclick = () => { closeModal(); resolve(true); };
+    $('#modalBody').querySelectorAll('[data-close]').forEach(b => b.onclick = () => { closeModal(); resolve(false); });
+  });
+}
+
+/* ---------- 产值台账 ---------- */
+let PRODUCTS = [];
+let OVW_ROWS = [];
+
+async function ensureProducts() {
+  if (!PRODUCTS.length) PRODUCTS = (await api('GET', '/products?size=200')).rows || [];
+}
+
+async function loadOutput() {
+  const type = $('#ovwType').value;
+  const qs = new URLSearchParams({ page: '1', size: '100' });
+  if ($('#ovwFrom').value) qs.set('from', $('#ovwFrom').value);
+  if ($('#ovwTo').value) qs.set('to', $('#ovwTo').value);
+  try {
+    const data = await api('GET', '/' + type + '?' + qs);
+    OVW_ROWS = data.rows || [];
+    const action = r => `${canWrite() ? `<button class="btn sm" data-edit="${r.id}">编辑</button>` : ''}
+      ${isAdmin() ? `<button class="btn sm" data-del="${r.id}">删除</button>` : ''}`;
+    const body = OVW_ROWS.length ? OVW_ROWS.map(r => type === 'production-values'
+      ? `<tr><td><b>${esc(r.period)}</b></td><td>${esc(r.productName)}</td>
+         <td class="num">${num(r.outputValue)} <span class="note">${esc(r.unit)}</span></td>
+         <td class="num">${num(r.qty)} <span class="note">${esc(r.qtyUnit)}</span></td>
+         <td>${action(r)}</td></tr>`
+      : `<tr><td><b>${esc(r.period)}</b></td><td>${esc(r.name)}</td>
+         <td class="num">${num(r.outputValue)} <span class="note">${esc(r.unit)}</span></td>
+         <td class="num">${num(r.qty)} <span class="note">${esc(r.qtyUnit)}</span></td>
+         <td>${action(r)}</td></tr>`).join('')
+      : `<tr><td colspan="5"><div class="empty">该区间暂无记录</div></td></tr>`;
+    $('#ovwTable').innerHTML = `<table><thead><tr><th>月份</th>
+      <th>${type === 'production-values' ? '产品' : '名称'}</th><th class="num">产值</th>
+      <th class="num">产量</th><th style="width:150px">操作</th></tr></thead><tbody>${body}</tbody></table>`;
+    $('#ovwTable').querySelectorAll('[data-edit]').forEach(b =>
+      b.onclick = () => outputForm(OVW_ROWS.find(r => String(r.id) === b.dataset.edit)));
+    $('#ovwTable').querySelectorAll('[data-del]').forEach(b =>
+      b.onclick = async () => {
+        const row = OVW_ROWS.find(r => String(r.id) === b.dataset.del);
+        if (!await confirmModal(`确定删除「${row.productName || row.name} ${row.period}」？`)) return;
+        try {
+          await api('DELETE', '/' + type + '/' + row.id);
+          toast('已删除'); await loadOutput();
+        } catch (e) { toast(e.message, 'err'); }
+      });
+  } catch (e) {
+    $('#ovwTable').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+  }
+}
+
+async function outputForm(row) {
+  const type = $('#ovwType').value;
+  const isProd = type === 'production-values';
+  if (isProd) await ensureProducts();
+  const d = row || { period: '2026-11', outputValue: '', unit: '万元', qty: '', qtyUnit: '吨' };
+  openModal(`<h3>${row ? '编辑' : '新增'}${isProd ? '产品产值' : '生产总值'}</h3>
+    <div class="form-grid">
+      <div class="field"><label>月份</label><input type="month" id="oPeriod" value="${esc(d.period)}"></div>
+      ${isProd
+        ? `<div class="field"><label>产品</label><select id="oProduct">${PRODUCTS.map(p =>
+            `<option value="${p.id}" ${p.id === d.productId ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>`
+        : `<div class="field"><label>名称</label><input id="oName" value="${esc(d.name || '全厂生产总值')}"></div>`}
+      <div class="field"><label>产值</label><input type="number" step="0.01" id="oValue" value="${d.outputValue ?? ''}"></div>
+      <div class="field"><label>产值单位</label><input id="oUnit" value="${esc(d.unit || '万元')}"></div>
+      <div class="field"><label>产量</label><input type="number" step="0.01" id="oQty" value="${d.qty}"></div>
+      <div class="field"><label>产量单位</label><input id="oQtyUnit" value="${esc(d.qtyUnit || '吨')}"></div>
+    </div>
+    <div class="err" id="mErr"></div>
+    <div class="foot"><button class="btn" data-close>取消</button><button class="btn primary" id="mSave">保存</button></div>`);
+  $('#mSave').onclick = async () => {
+    $('#mErr').textContent = '';
+    const body = {
+      period: $('#oPeriod').value,
+      value: Number($('#oValue').value), unit: $('#oUnit').value.trim(),
+      qty: Number($('#oQty').value), qtyUnit: $('#oQtyUnit').value.trim()
+    };
+    if (isProd) body.productId = Number($('#oProduct').value);
+    else body.name = $('#oName').value.trim();
+    if (row) body.version = row.version;
+    try {
+      if (row) await api('PUT', '/' + type + '/' + row.id, body);
+      else await api('POST', '/' + type, body);
+      closeModal(); toast('已保存'); await loadOutput();
+    } catch (e) {
+      $('#mErr').textContent = e.code === 409 && e.detail && e.detail.currentVersion != null
+        ? e.message + '（当前版本 ' + e.detail.currentVersion + '）' : e.message;
+    }
+  };
+}
+
+/* ---------- 碳核查 ---------- */
+let VF_MODE = 'evidence';
+let VF_ROWS = [];
+
+async function loadVerify() {
+  const qs = new URLSearchParams({ page: '1', size: '100' });
+  if ($('#vfKw').value.trim()) qs.set('keyword', $('#vfKw').value.trim());
+  const path = VF_MODE === 'evidence' ? '/evidences' : '/third-party-reports';
+  try {
+    const data = await api('GET', path + '?' + qs);
+    VF_ROWS = data.rows || [];
+    const body = VF_ROWS.length ? VF_ROWS.map(r => {
+      const files = VF_MODE === 'evidence' ? (r.files || []) : (r.file ? [r.file] : []);
+      const fileCell = files.length
+        ? files.map(f => `<button class="btn sm" data-file="${f.id}">${esc(f.name)}</button>`).join(' ')
+        : '<span class="note">—</span>';
+      return `<tr><td><b>${esc(r.name)}</b>${r.code ? `<div class="note">${esc(r.code)}</div>` : ''}</td>
+        <td>${esc(r.description || '—')}</td>
+        <td>${esc(r.validFrom)} ~ ${esc(r.validTo || '长期')}</td>
+        <td>${esc(r.atDate)}</td><td>${fileCell}</td>
+        <td>${canWrite() ? `<button class="btn sm" data-edit="${r.id}">编辑</button>` : ''}
+          ${isAdmin() ? `<button class="btn sm" data-del="${r.id}">删除</button>` : ''}</td></tr>`;
+    }).join('') : `<tr><td colspan="6"><div class="empty">暂无记录</div></td></tr>`;
+    $('#vfTable').innerHTML = `<table><thead><tr><th>名称</th><th>说明</th><th>有效期</th>
+      <th>日期</th><th>附件</th><th style="width:150px">操作</th></tr></thead><tbody>${body}</tbody></table>`;
+    $('#vfTable').querySelectorAll('[data-file]').forEach(b =>
+      b.onclick = () => downloadApi('/files/' + b.dataset.file + '/download'));
+    $('#vfTable').querySelectorAll('[data-edit]').forEach(b =>
+      b.onclick = () => verifyForm(VF_ROWS.find(r => String(r.id) === b.dataset.edit)));
+    $('#vfTable').querySelectorAll('[data-del]').forEach(b =>
+      b.onclick = async () => {
+        const row = VF_ROWS.find(r => String(r.id) === b.dataset.del);
+        if (!await confirmModal(`确定删除「${row.name}」？`)) return;
+        try {
+          await api('DELETE', path + '/' + row.id);
+          toast('已删除'); await loadVerify();
+        } catch (e) { toast(e.message, 'err'); }
+      });
+  } catch (e) {
+    $('#vfTable').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+  }
+}
+
+async function uploadFiles(files) {
+  const ids = [];
+  for (const f of files) {
+    const fd = new FormData();
+    fd.append('file', f);
+    const r = await api('POST', '/files', fd);
+    ids.push(r.id);
+  }
+  return ids;
+}
+
+function verifyForm(row) {
+  const isEv = VF_MODE === 'evidence';
+  const d = row || { validFrom: '2026-01-01', validTo: '2026-12-31', atDate: '2026-11-25' };
+  openModal(`<h3>${row ? '编辑' : '新增'}${isEv ? '原始凭证' : '第三方报告'}</h3>
+    <div class="form-grid">
+      <div class="field full"><label>名称</label><input id="vName" value="${esc(d.name || '')}"></div>
+      ${isEv ? `<div class="field"><label>编号</label><input id="vCode" value="${esc(d.code || '')}"></div>` : ''}
+      <div class="field full"><label>说明</label><input id="vDesc" value="${esc(d.description || '')}"></div>
+      <div class="field"><label>有效期开始</label><input type="date" id="vFrom" value="${esc(d.validFrom)}"></div>
+      <div class="field"><label>有效期结束</label><input type="date" id="vTo" value="${esc(d.validTo || '')}"></div>
+      <div class="field"><label>${isEv ? '凭证日期' : '报告日期'}</label><input type="date" id="vAt" value="${esc(d.atDate)}"></div>
+      <div class="field full"><label>${isEv ? '附件（可多选）' : '报告文件'}</label>
+        <input type="file" id="vFiles" ${isEv ? 'multiple' : ''} accept=".pdf,.jpg,.png,.doc,.docx,.xls,.xlsx"></div>
+    </div>
+    ${row ? `<div class="note">不选择新文件则保留原附件</div>` : ''}
+    <div class="err" id="mErr"></div>
+    <div class="foot"><button class="btn" data-close>取消</button><button class="btn primary" id="mSave">保存</button></div>`);
+  $('#mSave').onclick = async () => {
+    $('#mErr').textContent = '';
+    try {
+      const files = $('#vFiles').files;
+      const uploaded = files.length ? await uploadFiles(files) : [];
+      const body = {
+        name: $('#vName').value.trim(), description: $('#vDesc').value.trim(),
+        validFrom: $('#vFrom').value, validTo: $('#vTo').value || null,
+        atDate: $('#vAt').value
+      };
+      if (isEv) {
+        body.code = $('#vCode').value.trim();
+        body.fileIds = uploaded.length ? uploaded : (row ? null : []);
+      } else {
+        body.fileId = uploaded.length ? uploaded[0] : (row && row.file ? row.file.id : null);
+      }
+      if (row) body.version = row.version;
+      const path = isEv ? '/evidences' : '/third-party-reports';
+      if (row) await api('PUT', path + '/' + row.id, body);
+      else await api('POST', path, body);
+      closeModal(); toast('已保存'); await loadVerify();
+    } catch (e) {
+      $('#mErr').textContent = e.message;
+    }
+  };
+}
+
+/* ---------- 设施 ---------- */
+let FACILITIES = [];
+
+async function loadFacilities() {
+  const qs = new URLSearchParams({ page: '1', size: '200' });
+  if ($('#fcKw').value.trim()) qs.set('keyword', $('#fcKw').value.trim());
+  try {
+    const data = await api('GET', '/facilities?' + qs);
+    FACILITIES = data.rows || [];
+    const body = FACILITIES.length ? FACILITIES.map(f => `<tr>
+      <td><span class="tree-lv${Math.min(3, f.level || 1)}">${esc(f.name)}</span></td>
+      <td class="mono">${esc(f.code)}</td><td>${esc(f.parentName || '—')}</td>
+      <td>${f.level} 级</td><td class="num">${f.sort}</td><td>${esc(f.remark || '—')}</td>
+      <td>${canWrite() ? `<button class="btn sm" data-child="${f.id}">添加下级</button>
+        <button class="btn sm" data-edit="${f.id}">编辑</button>` : ''}
+        ${isAdmin() ? `<button class="btn sm" data-del="${f.id}">删除</button>` : ''}</td></tr>`).join('')
+      : `<tr><td colspan="7"><div class="empty">暂无设施</div></td></tr>`;
+    $('#fcTable').innerHTML = `<table><thead><tr><th>设施名称</th><th>编码</th><th>上级设施</th>
+      <th>层级</th><th class="num">排序</th><th>备注</th><th style="width:210px">操作</th></tr></thead>
+      <tbody>${body}</tbody></table>`;
+    $('#fcTable').querySelectorAll('[data-edit]').forEach(b =>
+      b.onclick = () => facilityForm(FACILITIES.find(f => String(f.id) === b.dataset.edit)));
+    $('#fcTable').querySelectorAll('[data-child]').forEach(b =>
+      b.onclick = () => facilityForm(null, Number(b.dataset.child)));
+    $('#fcTable').querySelectorAll('[data-del]').forEach(b =>
+      b.onclick = async () => {
+        const f = FACILITIES.find(x => String(x.id) === b.dataset.del);
+        if (!await confirmModal(`确定删除设施「${f.name}」？存在下级时会被拒绝。`)) return;
+        try {
+          await api('DELETE', '/facilities/' + f.id);
+          toast('已删除'); await loadFacilities();
+        } catch (e) { toast(e.message, 'err'); }
+      });
+  } catch (e) {
+    $('#fcTable').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+  }
+}
+
+function facilityForm(row, parentId) {
+  const options = FACILITIES.filter(f => !row || f.id !== row.id)
+    .map(f => `<option value="${f.id}" ${((row && row.parentId) || parentId) === f.id ? 'selected' : ''}>
+      ${'　'.repeat(Math.max(0, (f.level || 1) - 1))}${esc(f.name)}</option>`).join('');
+  const d = row || { sort: 1 };
+  openModal(`<h3>${row ? '编辑' : '新增'}设施</h3>
+    <div class="form-grid">
+      <div class="field"><label>设施名称</label><input id="fName" value="${esc(d.name || '')}"></div>
+      <div class="field"><label>设施编码</label><input id="fCode" value="${esc(d.code || '')}"></div>
+      <div class="field"><label>上级设施</label><select id="fParent">
+        <option value="">— 根节点 —</option>${options}</select></div>
+      <div class="field"><label>排序</label><input type="number" id="fSort" value="${d.sort || 1}"></div>
+      <div class="field full"><label>备注</label><input id="fRemark" value="${esc(d.remark || '')}"></div>
+    </div>
+    <div class="err" id="mErr"></div>
+    <div class="foot"><button class="btn" data-close>取消</button><button class="btn primary" id="mSave">保存</button></div>`);
+  $('#mSave').onclick = async () => {
+    $('#mErr').textContent = '';
+    const body = {
+      name: $('#fName').value.trim(), code: $('#fCode').value.trim(),
+      parentId: $('#fParent').value ? Number($('#fParent').value) : null,
+      sort: Number($('#fSort').value), remark: $('#fRemark').value.trim()
+    };
+    if (row) body.version = row.version;
+    try {
+      if (row) await api('PUT', '/facilities/' + row.id, body);
+      else await api('POST', '/facilities', body);
+      closeModal(); toast('已保存'); await loadFacilities();
+    } catch (e) { $('#mErr').textContent = e.message; }
+  };
+}
+
+/* ---------- 分析 ---------- */
+async function loadAnalysis() {
+  const page = $('#anPage').value;
+  const from = $('#anFrom').value, to = $('#anTo').value;
+  const year = (to || '2026-11').slice(0, 4);
+  let path = '/' + page;
+  if (page === 'analysis/quota' || page === 'analysis/footprint') path += '?year=' + year;
+  else if (page !== 'analysis/supply-chain') path += `?from=${from}&to=${to}`;
+  try {
+    const d = await api('GET', path);
+    $('#anKpis').innerHTML = (d.kpis || []).map(k => `<div class="kpi">
+      <div class="lb">${esc(k.label)}</div>
+      <div class="vl">${esc(k.value)}<small>${esc(k.unit || '')}</small></div>
+      <div class="note">${esc(k.foot || '')}</div></div>`).join('');
+    const charts = (d.series || []).map(s => {
+      const max = Math.max(...(s.values || []).map(v => Math.abs(Number(v))), 1);
+      const rows = (s.labels || []).map((l, i) => {
+        const v = Number((s.values || [])[i] || 0);
+        return `<div class="crow"><b title="${esc(l)}">${esc(l)}</b>
+          <div class="track"><i style="width:${Math.min(100, Math.abs(v) / max * 100)}%"></i></div>
+          <span class="num">${v.toLocaleString('zh-CN', { maximumFractionDigits: 4 })}</span></div>`;
+      }).join('');
+      return `<div class="card2" style="margin-bottom:12px"><h3>${esc(s.name)}
+        <span class="pill">${esc(s.unit || '')}</span></h3>${rows}</div>`;
+    }).join('');
+    const sk = d.sankey ? renderSankey(d.sankey) : '';
+    $('#anChart').innerHTML = charts || sk ? `<div class="split" style="margin-bottom:12px">
+      <div>${charts}</div><div>${sk}</div></div>` : '';
+    if (!charts && sk) $('#anChart').innerHTML = sk;
+    $('#anTable').innerHTML = renderAnalysisTable(d.table);
+  } catch (e) {
+    $('#anKpis').innerHTML = '';
+    $('#anChart').innerHTML = '';
+    $('#anTable').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+  }
+}
+
+function renderSankey(sk) {
+  const names = {};
+  (sk.layers || []).forEach(layer => layer.forEach(n => names[n.id] = n.name));
+  const cols = (sk.layers || []).map(layer => `<div style="min-width:150px">
+    ${layer.map(n => `<div class="pill" style="display:block;margin:3px 0">${esc(n.name)}
+      <b>${num(n.value)}</b></div>`).join('')}</div>`).join('<div style="align-self:center">→</div>');
+  const links = (sk.links || []).map(l => `<span class="pill" style="margin:2px">${esc(names[l.from] || l.from)}
+    → ${esc(names[l.to] || l.to)}：${num(l.value)}</span>`).join(' ');
+  return `<div class="card2"><h3>能流桑基</h3><div style="display:flex;gap:8px;overflow:auto">${cols}</div>
+    <div style="margin-top:8px">${links}</div></div>`;
+}
+
+function renderAnalysisTable(t) {
+  if (!t) return '';
+  const cols = t.columns || [];
+  const rows = t.rows || [];
+  return `<section class="card2"><h3>${esc(t.title || '明细')} <span class="note">${rows.length} 行</span></h3>
+    <div class="table-wrap"><table><thead><tr>${cols.map(c =>
+      `<th class="${c.type === 'number' ? 'num' : ''}">${esc(c.label)}</th>`).join('')}</tr></thead>
+    <tbody>${rows.length ? rows.map(r => `<tr>${cols.map(c => {
+      const v = r[c.key];
+      return `<td class="${c.type === 'number' ? 'num' : ''}">${v === null || v === undefined ? '—' : esc(v)}</td>`;
+    }).join('')}</tr>`).join('') : `<tr><td colspan="${cols.length}"><div class="empty">暂无数据</div></td></tr>`}</tbody>
+    </table></div></section>`;
+}
+
+/* ---------- 企业信息 ---------- */
+let ORG = null;
+
+async function loadOrg() {
+  try {
+    ORG = await api('GET', '/org');
+    const rows = [
+      ['企业名称', ORG.name], ['企业简称', ORG.shortName], ['企业类型', ORG.orgType],
+      ['统一社会信用代码', ORG.code], ['所属行业', ORG.industry], ['企业规模', ORG.scale],
+      ['所在地区', ORG.region], ['法定代表人', ORG.legalPerson], ['注册日期', ORG.regDate],
+      ['注册资本', ORG.regCapital], ['联系人', ORG.contact], ['联系电话', ORG.phone],
+      ['联系邮箱', ORG.email], ['企业简介', ORG.intro], ['备注', ORG.remark],
+      ['企业 Logo', ORG.logo ? ORG.logo.name : '未上传'],
+      ['营业执照', ORG.license ? ORG.license.name : '未上传']
+    ];
+    $('#orgTable').innerHTML = `<table><tbody>${rows.map(([k, v]) =>
+      `<tr><th style="width:190px;background:#FAFCFB">${esc(k)}</th><td>${esc(v || '—')}</td></tr>`).join('')}
+      </tbody></table>`;
+    $('#orgEdit').style.display = isAdmin() ? '' : 'none';
+  } catch (e) {
+    $('#orgTable').innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+  }
+}
+
+function orgForm() {
+  const d = ORG || {};
+  openModal(`<h3>编辑企业信息</h3>
+    <div class="form-grid">
+      <div class="field"><label>企业名称</label><input id="gName" value="${esc(d.name || '')}"></div>
+      <div class="field"><label>企业简称</label><input id="gShort" value="${esc(d.shortName || '')}"></div>
+      <div class="field"><label>企业类型</label><input id="gType" value="${esc(d.orgType || '')}"></div>
+      <div class="field"><label>统一社会信用代码</label><input id="gCode" value="${esc(d.code || '')}"></div>
+      <div class="field"><label>所属行业</label><input id="gIndustry" value="${esc(d.industry || '')}"></div>
+      <div class="field"><label>企业规模</label><input id="gScale" value="${esc(d.scale || '')}"></div>
+      <div class="field"><label>所在地区</label><input id="gRegion" value="${esc(d.region || '')}"></div>
+      <div class="field"><label>法定代表人</label><input id="gLegal" value="${esc(d.legalPerson || '')}"></div>
+      <div class="field"><label>注册日期</label><input type="date" id="gRegDate" value="${esc(d.regDate || '')}"></div>
+      <div class="field"><label>注册资本</label><input id="gCapital" value="${esc(d.regCapital || '')}"></div>
+      <div class="field"><label>联系人</label><input id="gContact" value="${esc(d.contact || '')}"></div>
+      <div class="field"><label>联系电话</label><input id="gPhone" value="${esc(d.phone || '')}"></div>
+      <div class="field"><label>联系邮箱</label><input id="gEmail" value="${esc(d.email || '')}"></div>
+      <div class="field"><label>备注</label><input id="gRemark" value="${esc(d.remark || '')}"></div>
+      <div class="field full"><label>企业简介</label><textarea id="gIntro" rows="3">${esc(d.intro || '')}</textarea></div>
+    </div>
+    <div class="err" id="mErr"></div>
+    <div class="foot"><button class="btn" data-close>取消</button><button class="btn primary" id="mSave">保存</button></div>`);
+  $('#mSave').onclick = async () => {
+    $('#mErr').textContent = '';
+    const body = {
+      name: $('#gName').value.trim(), shortName: $('#gShort').value.trim(),
+      orgType: $('#gType').value.trim(), code: $('#gCode').value.trim(),
+      industry: $('#gIndustry').value.trim(), scale: $('#gScale').value.trim(),
+      region: $('#gRegion').value.trim(), legalPerson: $('#gLegal').value.trim(),
+      regDate: $('#gRegDate').value || null, regCapital: $('#gCapital').value.trim(),
+      contact: $('#gContact').value.trim(), phone: $('#gPhone').value.trim(),
+      email: $('#gEmail').value.trim(), intro: $('#gIntro').value.trim(),
+      remark: $('#gRemark').value.trim(), version: d.version
+    };
+    try {
+      await api('PUT', '/org', body);
+      closeModal(); toast('已保存'); await loadOrg();
+    } catch (e) {
+      $('#mErr').textContent = e.code === 409 && e.detail && e.detail.currentVersion != null
+        ? e.message + '（当前版本 ' + e.detail.currentVersion + '）' : e.message;
+    }
+  };
+}
+
+/* ---------- 审计 ---------- */
+async function loadAudit() {
+  const qs = new URLSearchParams();
+  const e = $('#auEntity').value, id = $('#auId').value.trim();
+  if (e) qs.set('entity', e);
+  if (id) qs.set('entityId', id);
+  qs.set('limit', '100');
+  const rows = await api('GET', '/audit-logs?' + qs.toString());
+  $('#auTable').innerHTML = rows.length ? `<table><thead><tr>
+    <th>时间</th><th>实体</th><th>ID</th><th>动作</th><th>操作人</th><th>改前</th><th>改后</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td>${esc((r.loggedAt || '').replace('T', ' ').slice(0, 19))}</td>
+      <td>${esc(r.entity)}</td><td>${esc(r.entityId)}</td>
+      <td><span class="tag ${r.action === 'create' ? 'ok' : r.action === 'unlock' ? 'warn' : ''}">${esc(r.action)}</span></td>
+      <td>${esc(r.actor)}</td>
+      <td class="note" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.beforeJson || '—')}</td>
+      <td class="note" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.afterJson || '—')}</td></tr>`).join('')}
+    </tbody></table>` : '<div class="empty">暂无审计记录</div>';
+}
+
+/* ---------- 弹窗与启动 ---------- */
+function openModal(html) {
+  $('#modalBody').innerHTML = html;
+  $('#modalMask').classList.remove('hidden');
+  $('#modalBody').querySelectorAll('[data-close]').forEach(b => b.onclick = closeModal);
+}
+function closeModal() { $('#modalMask').classList.add('hidden'); }
+
+function switchTab(name) {
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+  ['overview', 'reading', 'accounting', 'output', 'verify', 'facility', 'analysis', 'org', 'audit']
+    .forEach(t => $('#tab-' + t).classList.toggle('hidden', t !== name));
+  if (name === 'overview') loadOverview();
+  if (name === 'reading') loadReadings();
+  if (name === 'accounting') loadPeriod();
+  if (name === 'output') loadOutput();
+  if (name === 'verify') loadVerify();
+  if (name === 'facility') loadFacilities();
+  if (name === 'analysis') loadAnalysis();
+  if (name === 'org') loadOrg();
+  if (name === 'audit') loadAudit();
+}
+
+async function boot() {
+  if (!TOKEN) { $('#loginMask').classList.remove('hidden'); return; }
+  try {
+    ME = await api('GET', '/auth/me');
+    localStorage.setItem('cb_me', JSON.stringify(ME));
+  } catch (e) { logout(); return; }
+  $('#loginMask').classList.add('hidden');
+  $('#who').innerHTML = `<b>${esc(ME.displayName)}</b> · ${esc(ME.role)}`;
+  ['#ovwNew', '#vfNew', '#fcNew'].forEach(s => {
+    if ($(s)) $(s).style.display = canWrite() ? '' : 'none';
+  });
+  await loadDevices();
+  switchTab('reading');
+}
+
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => switchTab(b.dataset.tab));
+$('#lgBtn').onclick = login;
+$('#lgPwd').onkeydown = e => { if (e.key === 'Enter') login(); };
+$('#btnOut').onclick = () => { logout(); };
+$('#rQuery').onclick = loadReadings;
+$('#rNew').onclick = () => openReading(null);
+$('#rImport').onclick = importCsv;
+$('#aLoad').onclick = loadPeriod;
+$('#aCalc').onclick = () => accAction('calc');
+$('#aSubmit').onclick = () => accAction('submit');
+$('#aLock').onclick = () => accAction('lock');
+$('#aUnlock').onclick = () => accAction('unlock');
+$('#aReport').onclick = () => accAction('report');
+$('#auQuery').onclick = loadAudit;
+$('#ovQuery').onclick = loadOverview;
+
+$('#ovwQuery').onclick = loadOutput;
+$('#ovwType').onchange = loadOutput;
+$('#ovwNew').onclick = () => outputForm(null);
+$('#ovwExport').onclick = () => {
+  const qs = new URLSearchParams({ resource: $('#ovwType').value });
+  if ($('#ovwFrom').value) qs.set('from', $('#ovwFrom').value);
+  if ($('#ovwTo').value) qs.set('to', $('#ovwTo').value);
+  downloadApi('/export?' + qs.toString());
+};
+
+document.querySelectorAll('#vfTabs button').forEach(b => b.onclick = () => {
+  VF_MODE = b.dataset.v;
+  document.querySelectorAll('#vfTabs button').forEach(x => x.classList.toggle('on', x === b));
+  loadVerify();
+});
+$('#vfQuery').onclick = loadVerify;
+$('#vfNew').onclick = () => verifyForm(null);
+$('#vfExport').onclick = () => {
+  const qs = new URLSearchParams({ resource: VF_MODE === 'evidence' ? 'evidences' : 'third-party-reports' });
+  if ($('#vfKw').value.trim()) qs.set('keyword', $('#vfKw').value.trim());
+  downloadApi('/export?' + qs.toString());
+};
+
+$('#fcQuery').onclick = loadFacilities;
+$('#fcNew').onclick = () => facilityForm(null);
+$('#fcExport').onclick = () => {
+  const qs = new URLSearchParams({ resource: 'facilities' });
+  if ($('#fcKw').value.trim()) qs.set('keyword', $('#fcKw').value.trim());
+  downloadApi('/export?' + qs.toString());
+};
+
+$('#anQuery').onclick = loadAnalysis;
+$('#anPage').onchange = loadAnalysis;
+
+$('#orgEdit').onclick = orgForm;
+$('#modalMask').onclick = e => { if (e.target.id === 'modalMask') closeModal(); };
+
+boot();
+</script>
+</body>
+</html>

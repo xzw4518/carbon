@@ -1,0 +1,42 @@
+services:
+  mysql:
+    image: mysql:8.0
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root@2026}
+      MYSQL_DATABASE: carbonbal
+      MYSQL_USER: carbonbal
+      MYSQL_PASSWORD: ${DB_PASSWORD:-CarbonBal@2026}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./backup:/backup
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD:-root@2026}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/carbonbal?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+      DB_USER: carbonbal
+      DB_PASSWORD: ${DB_PASSWORD:-CarbonBal@2026}
+      JWT_SECRET: ${JWT_SECRET:?请设置 JWT_SECRET}
+      JOBS_ENABLED: "true"
+    ports:
+      - "8088:8088"
+    volumes:
+      - app-files:/app/data/files
+      - app-logs:/app/logs
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  app-files:
+  app-logs:
