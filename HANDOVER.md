@@ -11,7 +11,7 @@ carbonbal-1.0.1/
 ├─ VERSION                      版本号
 ├─ MANIFEST.txt                 打包信息（版本/日期/文件数）
 ├─ SHA256SUMS                   逐文件校验和
-├─ 自研原型/                     前端源码（唯一源码目录）
+├─ carbonbal-web/                     前端源码（唯一源码目录）
 │  ├─ index.html
 │  ├─ assets/                   JS/CSS（无框架、零构建）
 │  ├─ docs/                     需求卡、字段口径、前端发布约束
@@ -99,7 +99,7 @@ java -jar target/carbonbal.jar --spring.profiles.active=prod
 
 ## 5. 前端开发
 
-`自研原型/` 是唯一源码，`platform/backend/src/main/resources/static/app` 是构建产物：
+`carbonbal-web/` 是唯一源码，`platform/backend/src/main/resources/static/app` 是构建产物：
 
 ```bash
 bash platform/tools/sync-frontend.sh           # 源码 → 产物
@@ -120,7 +120,7 @@ bash platform/tools/sync-frontend.sh --check   # 检查漂移（交付前必须�
 | `bash tools/check-docs.sh` | 0 处 | 活文档过期口径 |
 | `bash tools/inspect.sh` | 无 FAIL | 日巡检；`--weekly` / `--monthly` 换档 |
 
-前端门禁（在 `自研原型` 下，需先 `npm i`）：
+前端门禁（在 `carbonbal-web` 下，需先 `npm i`）：
 
 ```bash
 node tools/gate-l0.cjs     # 11/11

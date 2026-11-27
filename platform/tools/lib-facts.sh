@@ -7,7 +7,7 @@
 #
 # 提供变量：
 #   FACTS_ROOT            仓库根（D:/能碳12 等价路径）
-#   FACTS_VERSION         应用版本（自研原型/VERSION）
+#   FACTS_VERSION         应用版本（carbonbal-web/VERSION）
 #   FACTS_FLYWAY_VERSION  Flyway 最大迁移编号（V*.sql 的数字最大值）
 #   FACTS_MIGRATIONS      迁移文件个数
 #   FACTS_TEST_CLASSES    *Test.java 个数
@@ -23,7 +23,7 @@ else
 fi
 
 FACTS_ROOT="$(cd "$_FACTS_DIR/../.." && pwd)"
-FACTS_FE="$FACTS_ROOT/自研原型"
+FACTS_FE="$FACTS_ROOT/carbonbal-web"
 FACTS_BE="$FACTS_ROOT/platform/backend"
 FACTS_MIGRATIONS_DIR="$FACTS_BE/src/main/resources/db/migration"
 

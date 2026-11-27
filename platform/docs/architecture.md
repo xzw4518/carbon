@@ -225,7 +225,7 @@ Spring Boot 单 jar + MySQL
 → `authenticate()`（登录 + `GET /api/bootstrap`）→ 动态加载 `pages-core/pages-generic/pages-system/...`
 → `initApp()` 渲染。页面脚本在快照之后加载，列表页通过 `DB[key]` 的数组身份变化完成二次同步。
 
-**源码与产物**：`自研原型/` 是唯一源码目录，`backend/src/main/resources/static/app` 由 `platform/tools/sync-frontend.sh` 生成；`--check` 可检测漂移。
+**源码与产物**：`carbonbal-web/` 是唯一源码目录，`backend/src/main/resources/static/app` 由 `platform/tools/sync-frontend.sh` 生成；`--check` 可检测漂移。
 
 **读写边界**：
 

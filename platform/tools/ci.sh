@@ -91,7 +91,7 @@ rm -f "$MVN_LOG"
 
 # ---------- 5. 前端 L0 静态门禁 ----------
 stage 5/8 "前端 gate-l0"
-if OUT=$(cd 自研原型 && node tools/gate-l0.cjs 2>&1); then
+if OUT=$(cd carbonbal-web && node tools/gate-l0.cjs 2>&1); then
   echo "$OUT" | tail -3
   record "前端 L0" PASS "$(echo "$OUT" | grep '^RESULT' | tail -1)"
 else
@@ -102,7 +102,7 @@ fi
 
 # ---------- 6. 前端 XSS 静态断言（P1-5 回归护栏） ----------
 stage 6/8 "前端 XSS 断言"
-if OUT=$(cd 自研原型 && node tools/xss-check.cjs 2>&1); then
+if OUT=$(cd carbonbal-web && node tools/xss-check.cjs 2>&1); then
   echo "$OUT" | tail -2
   record "XSS 断言" PASS "$(echo "$OUT" | grep '^RESULT' | tail -1)"
 else
@@ -138,7 +138,7 @@ else
               "ui-flows:tools/ui-flows.cjs:node" \
               "check-ui:tools/check-ui.cjs:node"; do
     NAME=${spec%%:*}; REST=${spec#*:}; FILE=${REST%%:*}; RUNNER=${REST##*:}
-    if [ "$RUNNER" = "node" ]; then CMD="node $FILE"; DIR="自研原型"; else CMD="bash $FILE"; DIR="."; fi
+    if [ "$RUNNER" = "node" ]; then CMD="node $FILE"; DIR="carbonbal-web"; else CMD="bash $FILE"; DIR="."; fi
     echo; echo "--- $NAME ---"
     OUT=$(cd "$DIR" && eval "$CMD" 2>&1); RC=$?
     if [ "$RC" = "0" ]; then

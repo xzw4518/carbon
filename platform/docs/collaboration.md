@@ -52,7 +52,7 @@ pack_session: false            # 只有 A0 的汇总会话可为 true
 | 冲突 | 以谁为准 | 处理 |
 |---|---|---|
 | 同文件并行改 | 先到者 | 后到者停，提 issue 给 owner，不覆盖 |
-| 字段/口径 | `自研原型/docs/字段与口径.md` | 改口径先改文档，再改代码 |
+| 字段/口径 | `carbonbal-web/docs/字段与口径.md` | 改口径先改文档，再改代码 |
 | 接口 | `platform/docs/architecture.md` §4 + `error-codes.md` | 契约先行，前端不猜字段 |
 | 视觉 | `assets/app.css` token | 做不到的登记“受限项”，不硬编码 |
 | 状态/权限 | `state-machines.md` / `permissions.md` | 服务层集中迁移，页面不改状态 |

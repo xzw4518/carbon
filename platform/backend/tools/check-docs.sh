@@ -37,9 +37,9 @@ FILES=(
   platform/docs/retrospectives/INDEX.md
   platform/docs/retrospectives/actions.md
   HANDOVER.md
-  自研原型/AGENTS.md
-  自研原型/docs/字段与口径.md
-  自研原型/docs/requirements/INDEX.md
+  carbonbal-web/AGENTS.md
+  carbonbal-web/docs/字段与口径.md
+  carbonbal-web/docs/requirements/INDEX.md
 )
 
 HITS=0

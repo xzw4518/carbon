@@ -48,8 +48,8 @@
 
 | 文档 | 现状 | 应为 |
 |---|---|---|
-| `自研原型/docs/字段与口径.md` | v0，10 字段，引用旧快照键 | 覆盖 36 张业务表关键字段；快照已不含 9 类流水 |
-| `自研原型/docs/requirements/INDEX.md` | 表内 3 张卡，实际 6 个文件 | 补 003–005；补近三批需求卡或标注"变更单" |
+| `carbonbal-web/docs/字段与口径.md` | v0，10 字段，引用旧快照键 | 覆盖 36 张业务表关键字段；快照已不含 9 类流水 |
+| `carbonbal-web/docs/requirements/INDEX.md` | 表内 3 张卡，实际 6 个文件 | 补 003–005；补近三批需求卡或标注"变更单" |
 | `platform/docs/architecture.md` | 称创建接口均支持 clientRequestId | 改为"仅设备读数支持"，或补齐实现 |
 
 ## 3. 建议修复顺序
@@ -85,7 +85,7 @@
 - **M04 已落地**：错误码改为字符串业务码；`ApiResponse`/`GlobalExceptionHandler`/`JwtAuthFilter`/`CsrfFilter`/`SecurityConfig` 统一信封；新增 `docs/error-codes.md`；单测按码断言；登录失败实测 `AUTH_BAD_CREDENTIAL`、重复编码 `DUPLICATE`、版本冲突 `VERSION_CONFLICT`、CSRF `CSRF_INVALID`。
 - **M13 已落地**：`docs/traceability-matrix.md` 覆盖 28 个 P0 条目。
 - **M03 已落地**：`docs/state-machines.md` 四张五列表；`docs/permissions.md` 补 reviewer/approver/external、归属与二次确认列。
-- **M06/M15 基本落地**：`docs/release-and-rollback.md` 含产物指纹、发布台账、迁移回滚登记与 10 项验证；`自研原型/docs/发布与回滚.md` 改为前端侧指针。
+- **M06/M15 基本落地**：`docs/release-and-rollback.md` 含产物指纹、发布台账、迁移回滚登记与 10 项验证；`carbonbal-web/docs/发布与回滚.md` 改为前端侧指针。
 - **AGENTS.md §2 已切换到 S3 档位**，删除 10 条原型豁免，仅保留 M09 触控等受限项。
 - 第二批（P1）已完成：M11-L3、M12、M16、M10、M05（2026-11-25）。
 

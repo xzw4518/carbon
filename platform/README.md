@@ -1,6 +1,6 @@
 # 能碳管理平台 · 后端
 
-设备数据 → 碳核算 → 报告 → 资产/产值/核查/分析的服务端。对应需求卡 `../自研原型/docs/requirements/REQ-20261124-001.md`，P1–P4 已全部交付。
+设备数据 → 碳核算 → 报告 → 资产/产值/核查/分析的服务端。对应需求卡 `../carbonbal-web/docs/requirements/REQ-20261124-001.md`，P1–P4 已全部交付。
 
 ## 1. 环境
 
@@ -54,7 +54,7 @@ mvn -DskipTests package && java -jar target/carbonbal.jar
 
 **前端（唯一源码 → 构建产物）**
 
-前端源码在仓库根目录 `自研原型/`，`backend/src/main/resources/static/app` 是生成产物，不要手改：
+前端源码在仓库根目录 `carbonbal-web/`，`backend/src/main/resources/static/app` 是生成产物，不要手改：
 
 ```bash
 bash tools/sync-frontend.sh          # 源码同步到产物
@@ -281,7 +281,7 @@ curl -s -X POST $BASE/api/jobs/scan-alerts/run -H "Authorization: Bearer $ADMIN"
 - 设备读数支持 CSV 导入（模板前端生成）；其余页面不显示导入入口
 - 设备管理页已接真实 CRUD 与 CSV 导入（含读数保护：有读数的设备拒绝删除）
 - 产品碳足迹页、年度配额页已接写接口；报告历史支持 ZIP 打包
-- 数据全部来自后端：`自研原型/index.html` 必须通过服务访问（`/app/`），直接以 `file://` 打开无法登录
+- 数据全部来自后端：`carbonbal-web/index.html` 必须通过服务访问（`/app/`），直接以 `file://` 打开无法登录
 - 演示账号见 §4（手机号登录，6 个账号覆盖超级管理员 / 租户管理员 / 普通用户）
 
 后续迁移：按切片把原型页面替换为平台页面（v2 起）。
@@ -295,7 +295,7 @@ bash tools/smoke.sh           # 上线冒烟 9 项
 bash tools/data-check.sh      # L3 数据一致性 33 项（双字段/孤儿/重复/审计守恒/角色）
 bash tools/perf.sh            # 性能预算 14 项（接口/体积/首屏）
 bash tools/functional-cases.py # 功能用例 142 条（输出 docs/test-cases-<date>.md）
-cd ../自研原型 && node tools/ui-flows.cjs  # 交互流程 38 项（真实浏览器，需服务已启动）
+cd ../carbonbal-web && node tools/ui-flows.cjs  # 交互流程 38 项（真实浏览器，需服务已启动）
 bash tools/inspect.sh         # 日巡检；--weekly / --monthly 换档
 bash tools/check-docs.sh      # 文档一致性（过期数字/旧口径 0 处）
 ```

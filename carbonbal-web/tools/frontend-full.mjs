@@ -9,7 +9,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 // 源码树内运行：不再硬编码绝对路径（P2-9）
-//   FE_ROOT = 自研原型/（本文件位于 自研原型/tools/）
+//   FE_ROOT = carbonbal-web/（本文件位于 carbonbal-web/tools/）
 //   BASE    = 后端地址，可用 CB_BASE 覆盖
 //   CHROME  = 浏览器可执行文件，可用 CHROME_PATH 覆盖
 const HERE = path.dirname(fileURLToPath(import.meta.url));

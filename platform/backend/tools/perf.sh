@@ -82,11 +82,11 @@ BOOT_GZ=$(curl -s -b "$JAR" -H "$AUTH" -H 'Accept-Encoding: gzip' "$BASE/api/boo
 ck "bootstrap 原始体积" "$((BOOT / 1024))" "$BUDGET_BOOT_KB" "KB"
 ck "bootstrap gzip" "$((BOOT_GZ / 1024))" "$BUDGET_BOOT_GZ_KB" "KB"
 
-ASSET_KB=$(( $(find ../../自研原型/index.html ../../自研原型/assets -type f -printf '%s\n' 2>/dev/null | awk '{s+=$1} END{print int(s/1024)}') ))
+ASSET_KB=$(( $(find ../../carbonbal-web/index.html ../../carbonbal-web/assets -type f -printf '%s\n' 2>/dev/null | awk '{s+=$1} END{print int(s/1024)}') ))
 ck "前端产物" "$ASSET_KB" "$BUDGET_ASSET_KB" "KB"
 
 # ---- 首屏（可选，需 playwright-core）----
-UI_JSON=$(cd ../../自研原型 && node tools/perf-ui.cjs "$BASE" 2>/dev/null | tail -1)
+UI_JSON=$(cd ../../carbonbal-web && node tools/perf-ui.cjs "$BASE" 2>/dev/null | tail -1)
 if echo "$UI_JSON" | grep -q '"fcp"'; then
   get(){ echo "$UI_JSON" | python -c "import sys,json;print(json.load(sys.stdin).get('$1',0))" 2>/dev/null; }
   ck "首屏 FCP" "$(get fcp)" "$BUDGET_FCP_MS" "ms"

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# 前端构建同步：自研原型/ 是唯一源码目录，backend/src/main/resources/static/app 是构建产物。
+# 前端构建同步：carbonbal-web/ 是唯一源码目录，backend/src/main/resources/static/app 是构建产物。
 # 用法：
 #   bash tools/sync-frontend.sh          同步源码到产物
 #   bash tools/sync-frontend.sh --check  只检查是否漂移（有差异退出码 1）
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-SRC="$ROOT/自研原型"
+SRC="$ROOT/carbonbal-web"
 DST="$ROOT/platform/backend/src/main/resources/static/app"
 
 [ -f "$SRC/index.html" ] || { echo "源码目录缺少 index.html: $SRC" >&2; exit 1; }

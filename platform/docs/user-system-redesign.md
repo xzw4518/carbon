@@ -5,7 +5,7 @@
 
 **配套文件**
 
-- 页面原型：`../../自研原型/prototypes/user-system-v2.html`（浏览器直接打开，含租户/用户/角色三页与关键交互）
+- 页面原型：`../../carbonbal-web/prototypes/user-system-v2.html`（浏览器直接打开，含租户/用户/角色三页与关键交互）
 - 接口清单：`user-system-api.md`（数据模型、权限点、接口契约、错误码、验收点）
 
 ## 1. 一句话结论

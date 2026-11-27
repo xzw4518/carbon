@@ -45,11 +45,11 @@ jobs:
         run: mvn -B -Pcoverage test
 
       - name: Frontend static gate (L0)
-        working-directory: 自研原型
+        working-directory: carbonbal-web
         run: node tools/gate-l0.cjs
 
       - name: Frontend XSS assertions
-        working-directory: 自研原型
+        working-directory: carbonbal-web
         run: node tools/xss-check.cjs
 
       - name: Docs/facts consistency

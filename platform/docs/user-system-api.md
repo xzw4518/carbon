@@ -1,6 +1,6 @@
 # 用户体系 v2 · 接口清单与验收点（简化版）
 
-> 配套：产品方案 `user-system-redesign.md`，页面原型 `自研原型/prototypes/user-system-v2.html`。
+> 配套：产品方案 `user-system-redesign.md`，页面原型 `carbonbal-web/prototypes/user-system-v2.html`。
 > 角色模型已简化：**角色 = 可进入的功能页面集合**。本期不做动作级权限、不做数据范围、不区分内置/自定义。
 > 约定沿用现有：成功 `{status:0, body}`，失败 `{status:"CODE", body:{message, detail}}`。
 

@@ -56,15 +56,15 @@ fi
 # ---------- 前端：npm audit ----------
 if [ "$DO_FE" = "1" ]; then
   echo "== 前端依赖扫描（npm audit）=="
-  if [ -f 自研原型/package-lock.json ]; then
-    if (cd 自研原型 && npm audit --audit-level=high --json > "$report_dir/frontend-audit.json" 2>/dev/null); then
+  if [ -f carbonbal-web/package-lock.json ]; then
+    if (cd carbonbal-web && npm audit --audit-level=high --json > "$report_dir/frontend-audit.json" 2>/dev/null); then
       echo "[PASS] 前端依赖无 high/critical"
     else
       echo "[FAIL] 前端依赖存在 high/critical（见 $report_dir/frontend-audit.json）"
       FAILED=$((FAILED+1))
     fi
   else
-    echo "[SKIP] 自研原型/package-lock.json 不存在：跳过 npm audit"
+    echo "[SKIP] carbonbal-web/package-lock.json 不存在：跳过 npm audit"
     SKIPPED=$((SKIPPED+1))
   fi
 fi
@@ -72,7 +72,7 @@ fi
 # ---------- SAST（可选）：Semgrep ----------
 echo "== SAST（Semgrep）=="
 if command -v semgrep >/dev/null 2>&1; then
-  if semgrep --config=auto --error --json -o "$report_dir/semgrep.json" platform/backend/src 自研原型/assets >/dev/null 2>&1; then
+  if semgrep --config=auto --error --json -o "$report_dir/semgrep.json" platform/backend/src carbonbal-web/assets >/dev/null 2>&1; then
     echo "[PASS] Semgrep 无 error 级发现"
   else
     echo "[FAIL] Semgrep 发现 error 级问题（见 $report_dir/semgrep.json）"

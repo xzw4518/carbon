@@ -40,9 +40,9 @@ if [ "$CHECK_ONLY" = "1" ]; then
   # 交付包必须带的文件：缺一个就说明"打包脚本的 include 列表"和交付清单脱节
   MISSING=""
   for f in \
-    "自研原型/VERSION" \
-    "自研原型/index.html" \
-    "自研原型/tools/frontend-full.mjs" \
+    "carbonbal-web/VERSION" \
+    "carbonbal-web/index.html" \
+    "carbonbal-web/tools/frontend-full.mjs" \
     "platform/backend/tools/functional-cases.py" \
     "platform/backend/tools/run-prod.sh" \
     "platform/backend/pom.xml"; do
@@ -72,9 +72,9 @@ mkdir -p "$STAGE" "$DIST"
 
 # 3) 只复制源码与文档；排除编译产物、运行数据、备份、依赖（HANDOVER.md 直接改名为 README.md）
 tar -C "$ROOT" -cf - \
-  --exclude='自研原型/node_modules' \
-  --exclude='自研原型/.tmp_*' \
-  --exclude='自研原型/.DS_Store' \
+  --exclude='carbonbal-web/node_modules' \
+  --exclude='carbonbal-web/.tmp_*' \
+  --exclude='carbonbal-web/.DS_Store' \
   --exclude='platform/backend/target' \
   --exclude='platform/backend/backup' \
   --exclude='platform/backend/data' \
@@ -83,10 +83,10 @@ tar -C "$ROOT" -cf - \
   --exclude='platform/.tmp_*' \
   --exclude='platform/.DS_Store' \
   --exclude='dist' \
-  HANDOVER.md 自研原型 platform | tar -C "$STAGE" -xf -
+  HANDOVER.md carbonbal-web platform | tar -C "$STAGE" -xf -
 
 mv "$STAGE/HANDOVER.md" "$STAGE/README.md"
-cp "$STAGE/自研原型/VERSION" "$STAGE/VERSION"
+cp "$STAGE/carbonbal-web/VERSION" "$STAGE/VERSION"
 
 # 4) 同源校验：对暂存区（= 将要交付的内容）重新计算，逐项与源码事实比对
 stage_count() { find "$STAGE/$1" -maxdepth 1 -type f -name 'V*__*.sql' 2>/dev/null | wc -l | tr -d ' '; }
