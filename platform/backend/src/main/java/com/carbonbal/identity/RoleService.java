@@ -220,6 +220,22 @@ public class RoleService {
         return r == null ? "" : r.getName();
     }
 
+    /**
+     * 按名称查当前租户<b>启用中</b>的角色 ID，供成员导入等「按角色名填表」的场景使用。
+     *
+     * @param name 角色名称（前后空格会被 trim；null/空直接返回 null）
+     * @return 角色 ID；不存在或已停用时返回 {@code null}（由调用方决定如何报错）
+     */
+    public Long idByName(String name) {
+        if (name == null || name.isBlank()) return null;
+        TenantRole r = roles.selectOne(Wrappers.<TenantRole>lambdaQuery()
+                .eq(TenantRole::getOrgId, CurrentUser.orgId())
+                .eq(TenantRole::getName, name.trim())
+                .eq(TenantRole::getDisabled, 0)
+                .last("LIMIT 1"));
+        return r == null ? null : r.getId();
+    }
+
     public Long defaultRoleId(Long orgId) {
         ensureDefault(orgId);
         TenantRole r = roles.selectOne(Wrappers.<TenantRole>lambdaQuery()

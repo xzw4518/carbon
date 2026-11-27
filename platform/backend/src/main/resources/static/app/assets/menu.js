@@ -1,4 +1,4 @@
-/* 信息架构：与竞品 1:1（名称 / 顺序 / 层级 / 路由）；page 为页面编码，与后端 PageCatalog 一致 */
+/* 信息架构：名称 / 顺序 / 层级 / 路由；page 为页面编码，与后端 PageCatalog 一致 */
 window.MENU = [
   { type: 'page', name: '首页', path: '/home', icon: 'gauge', page: 'home' },
   { type: 'group', name: '企业管理', children: [

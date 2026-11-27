@@ -1,5 +1,7 @@
 server:
-  port: 8088
+  # 云平台（Railway / Render / Fly / Cloud Run 等）注入 PORT 时自动跟随，本地默认 8088
+  port: ${PORT:8088}
+  address: 0.0.0.0
   compression:
     enabled: true
 
@@ -31,7 +33,7 @@ mybatis-plus:
 
 app:
   file:
-    root: ./data/files
+    root: ${APP_FILE_ROOT:./data/files}
   report:
     # 报告页脚 [MACHINE] 机器可读摘要：生产默认关闭，自动化/测试环境置 true
     machine-line: ${REPORT_MACHINE_LINE:false}

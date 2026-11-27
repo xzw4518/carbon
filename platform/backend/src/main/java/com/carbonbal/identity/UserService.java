@@ -213,7 +213,14 @@ public class UserService {
         return new UserDtos.CreateResp(t.getId(), u.getId(), Hashes.maskPhone(phone), tempPassword, existing);
     }
 
-    /** 批量导入：整批共用一个临时密码，失败行返回原因，不影响其他行。 */
+    /**
+     * 批量导入：整批共用一个临时密码，失败行返回原因，不影响其他行。
+     * <p>
+     * 列定位按<b>表头名</b>而非固定列序：表头需包含「手机号」「姓名」，其余列
+     * （用户类型 / 角色 / 工号 / 职位）可选；列顺序可调整、多余的列（如导出文件带的
+     * 「状态」「最近登录」）会被忽略，因此与导出文件共用同一套表头名。
+     * 兼容旧 5 列模板（手机号,姓名,角色,工号,职位）：没有「用户类型」列时按普通用户处理。
+     */
     public UserDtos.ImportResp importCsv(MultipartFile file) {
         String content;
         try {
@@ -224,6 +231,7 @@ public class UserService {
         if (content.startsWith("\uFEFF")) content = content.substring(1);
         String[] lines = content.split("\r?\n");
         if (lines.length < 2) throw BizException.validation("CSV 内容为空或缺少表头");
+        ImportColumns cols = ImportColumns.parse(lines[0]);
         String tempPassword = policy.random();
         int success = 0;
         List<Map<String, Object>> errors = new ArrayList<>();
@@ -231,15 +239,17 @@ public class UserService {
             String line = lines[i].trim();
             if (line.isEmpty()) continue;
             String[] c = line.split(",", -1);
+            String phone = cols.cell(c, cols.phone);
             try {
-                if (c.length < 3) throw BizException.validation("列数不足，需要 手机号,姓名,角色");
-                createWithPassword(c[0].trim(), c[1].trim(), c[2].trim(),
-                        c.length > 3 ? c[3].trim() : null, c.length > 4 ? c[4].trim() : null, tempPassword);
+                String displayName = cols.cell(c, cols.name);
+                if (displayName.isEmpty()) throw BizException.validation("姓名不能为空");
+                createWithPassword(phone, displayName, cols.cell(c, cols.userType), cols.cell(c, cols.role),
+                        cols.cell(c, cols.employeeNo), cols.cell(c, cols.title), tempPassword);
                 success++;
             } catch (Exception e) {
                 Map<String, Object> err = new LinkedHashMap<>();
                 err.put("line", i + 1);
-                err.put("phone", c.length > 0 ? Hashes.maskPhone(c[0].trim()) : "");
+                err.put("phone", Hashes.maskPhone(phone));
                 err.put("message", e.getMessage());
                 errors.add(err);
             }
@@ -247,10 +257,94 @@ public class UserService {
         return new UserDtos.ImportResp(success, errors.size(), errors, success > 0 ? tempPassword : null);
     }
 
-    private void createWithPassword(String phone, String displayName, String role,
+    /**
+     * 导入表头映射：把「表头名 → 列下标」解析出来，缺失的列下标保持 -1（读取时视为空串）。
+     * 表头名允许前后空格；同一表头重复出现时以第一次出现为准。
+     */
+    private static final class ImportColumns {
+
+        private static final String H_PHONE = "手机号";
+        private static final String H_NAME = "姓名";
+        private static final String H_USER_TYPE = "用户类型";
+        private static final String H_ROLE = "角色";
+        private static final String H_EMPLOYEE_NO = "工号";
+        private static final String H_TITLE = "职位";
+
+        private int phone = -1;
+        private int name = -1;
+        private int userType = -1;
+        private int role = -1;
+        private int employeeNo = -1;
+        private int title = -1;
+
+        /**
+         * 解析表头行；缺少必需列直接抛出可读错误。
+         *
+         * @param headerLine CSV 第一行（可能带 BOM）
+         * @return 列下标映射
+         */
+        private static ImportColumns parse(String headerLine) {
+            String[] cells = headerLine.replace("\uFEFF", "").split(",", -1);
+            ImportColumns c = new ImportColumns();
+            for (int i = 0; i < cells.length; i++) {
+                String h = cells[i] == null ? "" : cells[i].trim();
+                switch (h) {
+                    case H_PHONE -> c.phone = c.phone < 0 ? i : c.phone;
+                    case H_NAME -> c.name = c.name < 0 ? i : c.name;
+                    case H_USER_TYPE -> c.userType = c.userType < 0 ? i : c.userType;
+                    case H_ROLE -> c.role = c.role < 0 ? i : c.role;
+                    case H_EMPLOYEE_NO -> c.employeeNo = c.employeeNo < 0 ? i : c.employeeNo;
+                    case H_TITLE -> c.title = c.title < 0 ? i : c.title;
+                    default -> {
+                        // 未知列（状态 / 最近登录 / 备注等）忽略，保证导出文件可回导
+                    }
+                }
+            }
+            if (c.phone < 0) throw BizException.validation("表头缺少：" + H_PHONE);
+            if (c.name < 0) throw BizException.validation("表头缺少：" + H_NAME);
+            // 旧 5 列模板（手机号,姓名,角色,工号,职位）没有「用户类型」列：
+            // 保留历史语义「第 3 列是角色」，避免老模板整体失效
+            if (c.userType < 0 && c.role < 0 && cells.length > 2) c.role = 2;
+            return c;
+        }
+
+        /**
+         * 读取单元格，越界或缺失列返回空串（不返回 null，便于下游 isBlank 判断）。
+         *
+         * @param row CSV 行单元格数组
+         * @param idx 列下标，-1 表示该列不存在
+         * @return 去空格的单元格文本
+         */
+        private String cell(String[] row, int idx) {
+            if (row == null || idx < 0 || idx >= row.length) return "";
+            String v = row[idx];
+            return v == null ? "" : v.trim();
+        }
+    }
+
+    /**
+     * 按导入行的原始单元格创建成员：用户类型写在「用户类型」列，角色写在「角色」列。
+     *
+     * @param phone        手机号（必填，1 开头 11 位）
+     * @param displayName  姓名（必填）
+     * @param rawUserType  用户类型原值（普通用户 / 租户管理员 / user / tenant_admin / 空）
+     * @param rawRole      角色名原值（可空；必须是角色管理中已配置的启用角色）
+     * @param employeeNo   工号（可空）
+     * @param title        职位（可空）
+     * @param tempPassword 整批共用的临时密码
+     */
+    private void createWithPassword(String phone, String displayName, String rawUserType, String rawRole,
                                     String employeeNo, String title, String tempPassword) {
-        String userType = resolveUserType(null, role);
-        Long roleId = "tenant_admin".equals(userType) ? null : resolveRoleId(null, null);
+        String userType = parseImportUserType(rawUserType);
+        Long roleId;
+        if ("tenant_admin".equals(userType)) {
+            // 管理员不挂业务角色：角色列宽容忽略，roleId 必须为 null
+            roleId = null;
+        } else if (rawRole == null || rawRole.isBlank()) {
+            roleId = resolveRoleId(null, null);
+        } else {
+            roleId = requireRoleIdByName(rawRole.trim());
+        }
         if (!phone.matches("^1\\d{10}$")) throw BizException.validation("手机号格式不正确");
         AppUser u = users.selectOne(Wrappers.<AppUser>lambdaQuery()
                 .eq(AppUser::getPhone, phone).last("LIMIT 1"));
@@ -456,13 +550,27 @@ public class UserService {
 
     /* ==================== 导出 ==================== */
 
+    /**
+     * 导出成员列表：表头名与导入模板一致（多出「状态」「最近登录」两列），
+     * {@link #importCsv} 按表头名定位列并忽略多余列，因此列结构与导入模板兼容。
+     * <p>
+     * 「手机号」列输出<b>完整号码</b>（导出接口仅 ADMIN 可调用），导出文件可直接回导：
+     * 已存在的号码会按「该手机号已是本企业成员」逐行失败，其余行正常导入。
+     * 注意列表页（{@link #list}）仍输出脱敏手机号，前端依赖该字段，两者取值来源不同。
+     * 租户管理员不挂业务角色，其「用户类型」为「租户管理员」、「角色」列留空；
+     * 普通用户的「角色」列输出角色名，取不到名字时同样留空（不输出占位符）。
+     */
     public byte[] exportCsv() {
         List<UserDtos.MemberView> list = list(null, null, null, null);
+        Map<Long, String> realPhones = realPhoneMap(list);
         List<List<Object>> rows = new ArrayList<>();
         for (UserDtos.MemberView m : list) {
-            rows.add(List.of(m.phone() == null ? "" : m.phone(),
+            boolean admin = "tenant_admin".equals(m.userType());
+            String roleName = m.roleName() == null || "—".equals(m.roleName()) ? "" : m.roleName();
+            rows.add(List.of(realPhones.getOrDefault(m.userId(), ""),
                     m.displayName() == null ? "" : m.displayName(),
-                    "tenant_admin".equals(m.userType()) ? "租户管理员" : m.roleName(),
+                    admin ? "租户管理员" : "普通用户",
+                    admin ? "" : roleName,
                     switch (m.status()) {
                         case "active" -> "正常";
                         case "disabled" -> "停用";
@@ -473,17 +581,43 @@ public class UserService {
                     m.title() == null ? "" : m.title(),
                     m.lastLoginAt() == null ? "从未登录" : m.lastLoginAt()));
         }
-        return Csv.build(List.of("手机号", "姓名", "角色", "状态", "工号", "职位", "最近登录"), rows);
+        return Csv.build(List.of("手机号", "姓名", "用户类型", "角色", "状态", "工号", "职位", "最近登录"), rows);
     }
 
     /**
-     * 导入模板：列与 {@link #importCsv} 解析顺序一致（手机号,姓名,角色,工号,职位）。
-     * 示例行仅示范写法，导入前需替换为真实数据。
+     * 回查导出行的完整手机号：{@link #list} 返回的 {@code MemberView.phone} 是脱敏值
+     * （如 {@code 138****0001}），不能写进导出文件，这里按 userId 批量取
+     * {@code app_user.phone} 的原始号码。
+     * <p>
+     * 注意 MyBatis-Plus 的 {@code selectBatchIds} 传入空集合会拼出非法 SQL，故空列表直接短路。
+     *
+     * @param list 成员视图列表（其中手机号为脱敏值）
+     * @return userId → 完整手机号；未查到或号码为空的 userId 不出现在 Map 中，调用方回退空串
+     */
+    private Map<Long, String> realPhoneMap(List<UserDtos.MemberView> list) {
+        Map<Long, String> out = new HashMap<>();
+        if (list.isEmpty()) return out;
+        List<Long> userIds = list.stream()
+                .map(UserDtos.MemberView::userId)
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+        if (userIds.isEmpty()) return out;
+        for (AppUser u : users.selectBatchIds(userIds)) {
+            if (u != null && u.getId() != null && u.getPhone() != null) out.put(u.getId(), u.getPhone());
+        }
+        return out;
+    }
+
+    /**
+     * 导入模板：表头名与 {@link #importCsv} 的列名解析完全一致
+     * （手机号,姓名,用户类型,角色,工号,职位），列顺序可调整，表头名必须保留。
+     * 示例行仅示范写法（第二行演示「角色」可留空），导入前需替换为真实数据。
      */
     public byte[] importTemplateCsv() {
-        return Csv.build(List.of("手机号", "姓名", "角色", "工号", "职位"), List.of(
-                List.of("13900000001", "张三", "运营", "EMP001", "能源管理员"),
-                List.of("13900000002", "李四", "运营", "EMP002", "碳核算专员")));
+        return Csv.build(List.of("手机号", "姓名", "用户类型", "角色", "工号", "职位"), List.of(
+                List.of("13900000001", "张三", "普通用户", "运营", "EMP001", "能源管理员"),
+                List.of("13900000002", "李四", "普通用户", "", "EMP002", "碳核算专员")));
     }
 
     /** 席位上限来自租户套餐；用尽时拒绝新增成员。 */
@@ -539,7 +673,12 @@ public class UserService {
         }
     }
 
-    /** 账号导入/新增允许的角色写法：中文角色名 + 旧版英文值，统一映射到两级成员类型。 */
+    /**
+     * 账号新增/修改接口允许的角色写法：中文角色名 + 旧版英文值，统一映射到两级成员类型。
+     * <p>
+     * 仅供 {@link #resolveUserType} 为旧客户端兜底；<b>导入路径不再使用</b>
+     * （导入按「用户类型」列判定类型，「角色」列必须是角色管理里配置的真实角色）。
+     */
     private static final Set<String> ADMIN_ROLE_ALIASES =
             Set.of("admin", "tenant_admin", "管理员", "租户管理员");
     private static final Set<String> USER_ROLE_ALIASES =
@@ -555,6 +694,48 @@ public class UserService {
             throw BizException.validation("角色不合法，可选：运营 / 租户管理员");
         }
         return "user";
+    }
+
+    /**
+     * 解析导入文件的「用户类型」列：留空按普通用户；只接受两种中文值（及对应英文值）。
+     *
+     * @param rawUserType 单元格原值，可为 null
+     * @return {@code user} 或 {@code tenant_admin}
+     */
+    private static String parseImportUserType(String rawUserType) {
+        String t = rawUserType == null ? "" : rawUserType.trim();
+        if (t.isEmpty() || "普通用户".equals(t) || "user".equalsIgnoreCase(t)) return "user";
+        if ("租户管理员".equals(t) || "管理员".equals(t)
+                || "tenant_admin".equalsIgnoreCase(t) || "admin".equalsIgnoreCase(t)) {
+            return "tenant_admin";
+        }
+        throw BizException.validation("用户类型只能填普通用户或租户管理员");
+    }
+
+    /**
+     * 按角色名解析当前租户<b>启用中</b>的角色 ID。
+     * <p>
+     * 校验顺序是「先查表、查不到再给提示」：租户在「角色管理」里配置了什么名字，
+     * 导入就可以用什么名字——即使角色名叫「管理员」「admin」，只要确实存在就照用，
+     * 不按类型别名预先拦截（否则用户自建的同名角色会被误拒）。
+     * <p>
+     * 查不到时给两条不同的提示：
+     * <ul>
+     *   <li>值是 {@code 租户管理员} / {@code tenant_admin}：这是<b>用户类型</b>而不是角色，
+     *       提示改填「用户类型」列；</li>
+     *   <li>其它值：提示该角色未在角色管理中创建。</li>
+     * </ul>
+     *
+     * @param roleName 角色名（非空，已 trim）
+     * @return 角色 ID
+     */
+    private Long requireRoleIdByName(String roleName) {
+        Long roleId = roles.idByName(roleName);
+        if (roleId != null) return roleId;
+        if ("租户管理员".equals(roleName) || "tenant_admin".equalsIgnoreCase(roleName)) {
+            throw BizException.validation("角色「" + roleName + "」不存在；租户管理员请填在「用户类型」列");
+        }
+        throw BizException.validation("角色「" + roleName + "」不存在，请先在角色管理中创建");
     }
 
     private Long resolveRoleId(Long roleId, Long fallback) {

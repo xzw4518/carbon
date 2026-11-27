@@ -21,6 +21,10 @@ export JWT_SECRET=''
 # 留空 = 不信任任何代理，客户端 IP 一律取 remoteAddr（防伪造 XFF 绕过锁定）。
 export TRUSTED_PROXIES=''
 
+# ---- 端口 ----
+# 云平台（Railway/Render/Fly/Cloud Run）会注入 PORT，应用自动跟随；本机默认 8088
+export PORT=8088
+
 # ---- 可选开关 ----
 export LOG_FILE='./logs/carbonbal.log'
 export JOBS_ENABLED=true          # 预警扫描/月报/配额提醒

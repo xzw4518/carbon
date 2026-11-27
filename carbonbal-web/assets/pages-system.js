@@ -201,9 +201,9 @@
   }
 
   /** 模板兜底：后端接口未部署时在前端生成同一份 CSV，保证导入可用。 */
-  const TEMPLATE_CSV = '\uFEFF手机号,姓名,角色,工号,职位\r\n'
-    + '13900000001,张三,运营,EMP001,能源管理员\r\n'
-    + '13900000002,李四,运营,EMP002,碳核算专员\r\n';
+  const TEMPLATE_CSV = '\uFEFF手机号,姓名,用户类型,角色,工号,职位\r\n'
+    + '13900000001,张三,普通用户,运营,EMP001,能源管理员\r\n'
+    + '13900000002,李四,普通用户,,EMP002,碳核算专员\r\n';
   function downloadTemplateLocal() {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([TEMPLATE_CSV], { type: 'text/csv;charset=utf-8' }));
@@ -214,28 +214,45 @@
 
   function importModal() {
     modal({
-      title: '批量导入成员', width: 560,
+      title: '导入成员数据', width: 540,
       body: `<div class="stack">
-        <div class="small muted">CSV 列顺序：手机号,姓名,角色,工号,职位（工号、职位可空）；角色填「运营」或「租户管理员」。</div>
-        <div class="toolbar"><button class="btn" id="iu-tpl">${icon('download', 15)} 下载导入模板</button></div>
-        <label class="btn" style="justify-content:center;height:auto;padding:10px;cursor:pointer">
-          ${icon('upload', 16)} <span id="iu-name">选择 CSV 文件</span>
+        <button class="btn" id="iu-tpl" style="justify-content:center">${icon('download', 16)} 下载模板</button>
+        <div class="small muted">CSV 文件（UTF-8）</div>
+        <label class="btn" style="justify-content:center;height:auto;padding:10px 12px;cursor:pointer">
+          ${icon('upload', 16)} <span id="iu-name">上传 CSV 文件</span>
           <input type="file" id="iu-file" accept=".csv" style="display:none"></label>
-        <div class="small muted">模板含示例行，导入前请替换为真实数据。整批共用一个临时密码；失败行会返回原因，不影响其他行。</div>
+        <div class="small muted">列顺序：手机号,姓名,用户类型,角色,工号,职位</div>
+        <div class="hr" style="margin:8px 0"></div>
+        <div class="small" style="font-weight:600">导入说明：</div>
+        <ol class="small muted" style="padding-left:18px;margin:4px 0">
+          <li>请先下载标准模板，按照模板格式填写数据</li>
+          <li>用户类型填「普通用户」或「租户管理员」，留空按普通用户；角色只能填「角色管理」中已配置的角色，可留空</li>
+          <li>只能上传一个 CSV 文件；删除已上传文件可重新上传</li></ol>
+        <div class="row small hide" id="iu-del-wrap" style="gap:8px"><span class="muted" id="iu-file-name"></span>
+          <button class="btn btn-sm btn-ghost" id="iu-del">删除文件</button></div>
         <div id="iu-result"></div></div>`,
       foot: `<button class="btn" data-close>取消</button><button class="btn btn-primary" id="iu-run">开始导入</button>`,
       onMount(wrap, close) {
-        const f = wrap.querySelector('#iu-file');
-        f.onchange = () => { wrap.querySelector('#iu-name').textContent = f.files[0] ? f.files[0].name : '选择 CSV 文件'; };
+        const f = wrap.querySelector('#iu-file'), name = wrap.querySelector('#iu-name');
+        const wrapDel = wrap.querySelector('#iu-del-wrap'), fileName = wrap.querySelector('#iu-file-name');
+        f.onchange = () => {
+          name.textContent = f.files[0] ? '已选择文件' : '上传 CSV 文件';
+          wrapDel.classList.toggle('hide', !f.files[0]);
+          fileName.textContent = f.files[0] ? f.files[0].name : '';
+        };
+        wrap.querySelector('#iu-del').onclick = () => {
+          f.value = ''; name.textContent = '上传 CSV 文件'; wrapDel.classList.add('hide');
+        };
         wrap.querySelector('#iu-tpl').onclick = async (e) => {
-          const done = busy(e.currentTarget, '下载中');
+          const done = busy(e.currentTarget, '生成中');
           let ok = false;
           try { ok = await CarbonAPI.download('/users/import-template', true); } catch (err) { ok = false; }
           done();
           if (!ok) downloadTemplateLocal();
+          toast('ok', '模板已下载');
         };
         wrap.querySelector('#iu-run').onclick = async (e) => {
-          if (!f.files[0]) { toast('err', '请选择 CSV 文件'); return; }
+          if (!f.files[0]) { toast('err', '请先上传 CSV 文件'); return; }
           const done = busy(e.currentTarget, '导入中');
           try {
             const fd = new FormData(); fd.append('file', f.files[0]);

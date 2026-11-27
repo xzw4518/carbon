@@ -63,6 +63,11 @@
   .card .field{margin-bottom:12px}
   .card input{width:100%;height:38px}
   .card .btn{width:100%;height:38px;margin-top:4px}
+  /* 图形验证码：输入框与图片横排，高度与卡片内其它输入框一致 */
+  .card .cap-row{flex-direction:row;align-items:center;gap:8px}
+  .card .cap-row.hidden{display:none}
+  .card .cap-row input{flex:1 1 auto;width:auto;min-width:0}
+  .card .cap-row img{flex:0 0 112px;width:112px;height:38px;border:1px solid #CBD5D0;border-radius:8px;background:#F4F7F6;cursor:pointer;display:block}
   .err{color:var(--danger);font-size:12.5px;min-height:18px;margin-top:6px}
   .modal{width:520px;max-height:82vh;overflow:auto}
   .modal h3{margin:0 0 14px;font-size:16px}
@@ -101,6 +106,10 @@
     <p>设备数据 → 碳核算 → 报告（切片 1）</p>
     <div class="field"><label>账号</label><input id="lgUser" placeholder="手机号或用户名" autocomplete="username"></div>
     <div class="field"><label>密码</label><input id="lgPwd" type="password" placeholder="密码" autocomplete="current-password"></div>
+    <div class="field cap-row hidden" id="lgCapRow">
+      <input id="lgCap" maxlength="6" placeholder="验证码" autocomplete="off" inputmode="text">
+      <img id="lgCapImg" alt="验证码" title="点击刷新">
+    </div>
     <button class="btn primary" id="lgBtn">登录</button>
     <div class="err" id="lgErr"></div>
     <div class="note">请使用平台分配的账号登录；忘记密码请联系管理员重置。</div>
@@ -292,6 +301,9 @@ let ME = JSON.parse(localStorage.getItem('cb_me') || 'null');
 let DEVICES = [];
 let PERIOD = null;
 let REPORTS = [];
+/** 图形验证码开关与当前题目 id：后端 enabled=false 时前端整行隐藏。 */
+let CAPTCHA_ON = false;
+let CAPTCHA_ID = '';
 
 function toast(msg, kind) {
   const el = document.createElement('div');
@@ -329,15 +341,51 @@ function logout() {
   localStorage.removeItem('cb_token'); localStorage.removeItem('cb_me');
   $('#loginMask').classList.remove('hidden');
   $('#who').textContent = '';
+  loadCaptcha();
+}
+
+/**
+ * 拉取一张图形验证码。
+ * 后端关闭验证码（enabled=false）时整行隐藏，提交时不再携带验证码字段。
+ * 失败（网络/接口异常）时按关闭处理，避免登录卡片出现空图。
+ */
+async function loadCaptcha() {
+  const row = $('#lgCapRow'), img = $('#lgCapImg'), inp = $('#lgCap');
+  if (!row || !img || !inp) return;
+  try {
+    const r = await fetch('/api/auth/captcha', { headers: { 'Cache-Control': 'no-cache' } });
+    const j = await r.json();
+    const body = (j && j.body) || {};
+    if (!r.ok || !j || j.status !== 0 || !body.enabled || !body.image) {
+      CAPTCHA_ON = false; CAPTCHA_ID = '';
+      row.classList.add('hidden');
+      img.removeAttribute('src');
+      inp.value = '';
+      return;
+    }
+    CAPTCHA_ON = true;
+    CAPTCHA_ID = body.captchaId || '';
+    img.src = body.image;
+    row.classList.remove('hidden');
+    inp.value = '';
+  } catch (e) {
+    CAPTCHA_ON = false; CAPTCHA_ID = '';
+    row.classList.add('hidden');
+    inp.value = '';
+  }
 }
 
 async function login() {
   const u = $('#lgUser').value.trim(), p = $('#lgPwd').value;
+  const code = $('#lgCap').value.trim();
   $('#lgErr').textContent = '';
+  if (CAPTCHA_ON && !code) { $('#lgErr').textContent = '请输入图形验证码'; return; }
+  const payload = { username: u, password: p,
+    captchaId: CAPTCHA_ON ? CAPTCHA_ID : '', captchaCode: CAPTCHA_ON ? code : '' };
   try {
     const r = await fetch('/api/auth/login', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: u, password: p })
+      body: JSON.stringify(payload)
     });
     const j = await r.json();
     if (!r.ok || j.status !== 0) throw new Error((j.body && j.body.message) || '登录失败');
@@ -345,7 +393,11 @@ async function login() {
     localStorage.setItem('cb_token', TOKEN);
     localStorage.setItem('cb_me', JSON.stringify(ME));
     boot();
-  } catch (e) { $('#lgErr').textContent = e.message; }
+  } catch (e) {
+    $('#lgErr').textContent = e.message;
+    // 一次性验证码：失败后原图已失效，必须换一张并清空输入
+    loadCaptcha();
+  }
 }
 
 /* ---------- 设备数据 ---------- */
@@ -1035,7 +1087,7 @@ function switchTab(name) {
 }
 
 async function boot() {
-  if (!TOKEN) { $('#loginMask').classList.remove('hidden'); return; }
+  if (!TOKEN) { $('#loginMask').classList.remove('hidden'); loadCaptcha(); return; }
   try {
     ME = await api('GET', '/auth/me');
     localStorage.setItem('cb_me', JSON.stringify(ME));
@@ -1052,6 +1104,8 @@ async function boot() {
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => switchTab(b.dataset.tab));
 $('#lgBtn').onclick = login;
 $('#lgPwd').onkeydown = e => { if (e.key === 'Enter') login(); };
+$('#lgCap').onkeydown = e => { if (e.key === 'Enter') login(); };
+$('#lgCapImg').onclick = () => loadCaptcha();
 $('#btnOut').onclick = () => { logout(); };
 $('#rQuery').onclick = loadReadings;
 $('#rNew').onclick = () => openReading(null);

@@ -237,8 +237,8 @@
 | `POST /api/users/{id}/handover` | 把创建人/负责人转给他人 | 目标必须是本租户启用用户 |
 | `DELETE /api/users/{id}` | 移出成员；账号保留 | 最后管理员 `MEMBER_LAST_ADMIN` |
 | `GET /api/users/{id}/login-logs?limit=50` | 该成员登录记录 | — |
-| `GET /api/users/import-template` | 下载成员导入模板（`手机号,姓名,角色,工号,职位`，含示例行） | — |
-| `GET /api/users/export` / `POST /api/users/import` | CSV 导入导出 | `VALIDATION` |
+| `GET /api/users/import-template` | 下载成员导入模板（`手机号,姓名,用户类型,角色,工号,职位`，含示例行） | — |
+| `GET /api/users/export` / `POST /api/users/import` | CSV 导入导出：导出表头 `手机号,姓名,用户类型,角色,状态,工号,职位,最近登录`，导入按表头名定位列（多余列忽略）；**手机号列输出完整号码**（导出接口仅 `ADMIN` 可调用），导出文件可直接回导，已存在的号码逐行报「该手机号已是本企业成员」，不影响其它行；「用户类型」填 `普通用户` 或 `租户管理员`（留空按普通用户），「角色」必须是角色管理中已配置的角色名，租户管理员的角色列留空；用户类型为租户管理员时角色列会被忽略（不报错） | `VALIDATION` |
 
 ## 6. 角色管理（租户管理员 / 超级管理员）
 

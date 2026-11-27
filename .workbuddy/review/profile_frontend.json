@@ -37,7 +37,6 @@
     "package.json",
     "prototypes/",
     "tools/",
-    "对比竞品-检查报告.md"
   ],
   "goal_hints": [
     "package.json 声明：能碳管理平台前端（正式前端，随 Spring Boot 发布）",

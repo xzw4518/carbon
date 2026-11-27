@@ -148,9 +148,33 @@ java_main=$FACTS_JAVA_MAIN
 description=能碳管理平台完整源码（后端 + 前端 + 迁移 + 测试与运维脚本 + 文档）
 EOF
 
-(
-  cd "$STAGE"
-  find . -type f ! -name 'SHA256SUMS' -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+# 5b) 校验和用单进程 Python 生成，而非 `find | xargs sha256sum`
+#     原因：Windows 单次 CreateProcess 的「环境变量 + 命令行」上限约 32KB，本机环境变量已占约 30KB，
+#     386 个路径一次性喂给 xargs 会报 "environment is too large for exec"。Python 在进程内遍历，
+#     参数长度恒定，与文件数无关。
+#     注意：本机 python 是原生 Windows 版，os.path.relpath 给的是 '\'，必须归一化成 '/'，
+#     否则 Linux 上 `sha256sum -c SHA256SUMS` 会因路径不匹配而全部 FAILED。
+#     输出格式与 GNU sha256sum 一致：`<hash>  <相对路径>`（两空格）、无 './' 前缀、按路径排序、末尾换行。
+( cd "$STAGE" && python - <<'PY'
+import hashlib, os
+
+rows = []
+for root, dirs, files in os.walk('.'):
+    dirs.sort()
+    for name in sorted(files):
+        if name == 'SHA256SUMS':
+            continue
+        path = os.path.join(root, name)
+        rel = os.path.relpath(path, '.').replace('\\', '/')
+        h = hashlib.sha256()
+        with open(path, 'rb') as f:
+            for chunk in iter(lambda: f.read(1 << 20), b''):
+                h.update(chunk)
+        rows.append(f"{h.hexdigest()}  {rel}")
+rows.sort(key=lambda r: r.split('  ', 1)[1])
+with open('SHA256SUMS', 'w', encoding='utf-8', newline='\n') as out:
+    out.write('\n'.join(rows) + '\n')
+PY
 )
 
 # 6) 归档：tar.gz（保留权限）+ zip（Windows 友好）
@@ -167,7 +191,11 @@ SHA_TGZ=$(sha256sum "$NAME.tar.gz" | cut -d' ' -f1)
 SHA_ZIP=$(sha256sum "$NAME.zip" | cut -d' ' -f1)
 SIZE_TGZ=$(du -h "$NAME.tar.gz" | cut -f1)
 SIZE_ZIP=$(du -h "$NAME.zip" | cut -f1)
-rm -rf "$STAGE_ROOT"
+if [ "${KEEP_TMP:-0}" = "1" ]; then
+  echo "[i] KEEP_TMP=1，保留暂存目录 $STAGE_ROOT（由调用方清理）"
+else
+  rm -rf "$STAGE_ROOT"
+fi
 
 echo
 echo "文件数 $FILE_COUNT"

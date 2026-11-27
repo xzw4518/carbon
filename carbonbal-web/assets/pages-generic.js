@@ -477,7 +477,7 @@
               <div class="small" style="font-weight:600">导入说明：</div>
               <ol class="small muted" style="padding-left:18px;margin:4px 0">
                 <li>请先下载标准模板，按照模板格式填写数据</li>
-                <li>只能上传一个 Excel 文件</li>
+                <li>只能上传一个 CSV 文件</li>
                 <li>删除已上传的文件可重新上传</li></ol>
               <div class="row small hide" id="imp-del-wrap" style="gap:8px"><span class="muted" id="imp-file-name"></span>
                 <button class="btn btn-sm btn-ghost" id="imp-del">删除文件</button></div>
@@ -493,11 +493,11 @@
               };
               file.onchange = () => {
                 const f0 = file.files[0];
-                name.textContent = f0 ? '已选择文件' : '上传 Excel 文件';
+                name.textContent = f0 ? '已选择文件' : '上传 CSV 文件';
                 wrapDel.classList.toggle('hide', !f0);
                 fileName.textContent = f0 ? f0.name : '';
               };
-              w.querySelector('#imp-del').onclick = () => { file.value = ''; name.textContent = '上传 Excel 文件'; wrapDel.classList.add('hide'); };
+              w.querySelector('#imp-del').onclick = () => { file.value = ''; name.textContent = '上传 CSV 文件'; wrapDel.classList.add('hide'); };
               w.querySelector('#imp-run').onclick = async (e) => {
                 if (!file.files[0]) { toast('err', '请先上传 CSV 文件'); return; }
                 const done = busy(e.currentTarget, '导入中');

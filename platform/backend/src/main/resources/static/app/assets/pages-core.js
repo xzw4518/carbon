@@ -6,7 +6,7 @@
   const thisMonth = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };
   const yearOptions = (n = 3) => Array.from({ length: n }, (_, i) => String(thisYear() - i));
 
-  /* ============ 首页（对齐竞品：欢迎条 + 2 指标 + 2 图 + 待办/预警） ============ */
+  /* ============ 首页（欢迎条 + 2 指标 + 2 图 + 待办/预警） ============ */
 
   function niceMax(raw, parts = 3) {
     const rough = raw / parts;
@@ -1138,7 +1138,7 @@
     </div></div></div>`;
 
 
-  /* 核算日期统计页签：趋势图 + 分析表（竞品独立一套图表） */
+  /* 核算日期统计页签：趋势图 + 分析表 */
   function emissionByMonth() {
     const ms = DB.monthly.slice(9, 11);
     const out = ms.map(m => Math.round(m.energy * 12.5 + 260));
@@ -1975,18 +1975,18 @@
     }
   });
 
-  /* ============ 在线监测（竞品为空目录，1:1 保留占位） ============ */
+  /* ============ 在线监测（空目录占位） ============ */
   route('/carbon-monitor', {
     title: '在线监测', group: '在线监测',
     render() {
       return `<div class="page">
         <div class="page-head"><div><h1 class="page-title">在线监测</h1>
-          <p class="page-desc">该目录在竞品中无子菜单，页面为空白</p></div></div>
+          <p class="page-desc">该目录暂无子页面</p></div></div>
         <section class="card"><div class="card-body">
           <div class="tb-empty" style="padding:64px 16px">
             ${icon('cpu', 40)}
             <div style="font-size:15px;font-weight:600;color:var(--ink-700);margin-top:8px">模块未开通</div>
-            <div class="small">竞品侧该一级目录下无任何页面入口（访问 404），此处按 1:1 复刻保留</div>
+            <div class="small">该目录暂未配置页面入口，保留占位</div>
             <div class="row" style="justify-content:center;margin-top:14px">
               <a class="btn btn-sm" href="#/carbon-facility/device/list">前往设备管理</a>
             </div>
